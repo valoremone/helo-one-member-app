@@ -30,7 +30,7 @@ A premium concierge services platform with member and admin portals, built with 
 ### 1. Clone and Install
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/valoremone/helo-one-member-app.git
 cd helo-one-member-app
 npm install
 ```
