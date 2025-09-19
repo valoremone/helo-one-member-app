@@ -84,7 +84,29 @@ export default function LoginPage() {
         
         if (error) throw error
         toast.success('Signed in successfully!')
-        router.push('/')
+        
+        // Get user profile to determine redirect
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile) {
+            if (['admin', 'ops'].includes(profile.role)) {
+              router.push('/admin')
+            } else {
+              router.push('/member')
+            }
+          } else {
+            // If no profile exists, redirect to home to trigger profile creation
+            router.push('/')
+          }
+        } else {
+          router.push('/')
+        }
       }
     } catch (error: any) {
       console.error('Error with password auth:', error)
