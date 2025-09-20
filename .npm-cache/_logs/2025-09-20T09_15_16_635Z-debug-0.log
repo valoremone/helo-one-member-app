@@ -1,0 +1,28 @@
+0 verbose cli /usr/local/bin/node /usr/local/lib/node_modules/npm/bin/npm-cli.js
+1 info using npm@10.8.1
+2 info using node@v22.3.0
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/matthardage/helo-one-member-app/.npmrc
+5 silly config load:file:/Users/matthardage/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm exec tailwindcss -v
+8 verbose argv "exec" "--" "tailwindcss" "-v"
+9 verbose logfile logs-max:10 dir:/Users/matthardage/helo-one-member-app/.npm-cache/_logs/2025-09-20T09_15_16_635Z-
+10 verbose logfile /Users/matthardage/helo-one-member-app/.npm-cache/_logs/2025-09-20T09_15_16_635Z-debug-0.log
+11 silly logfile done cleaning log files
+12 http fetch GET https://registry.npmjs.org/npm attempt 1 failed with ENOTFOUND
+13 silly packumentCache heap:4345298944 maxSize:1086324736 maxEntrySize:543162368
+14 verbose stack Error: could not determine executable to run
+14 verbose stack     at getBinFromManifest (/usr/local/lib/node_modules/npm/node_modules/libnpmexec/lib/get-bin-from-manifest.js:17:23)
+14 verbose stack     at exec (/usr/local/lib/node_modules/npm/node_modules/libnpmexec/lib/index.js:198:15)
+14 verbose stack     at async Npm.exec (/usr/local/lib/node_modules/npm/lib/npm.js:207:9)
+14 verbose stack     at async module.exports (/usr/local/lib/node_modules/npm/lib/cli/entry.js:74:5)
+15 verbose pkgid tailwindcss@4.1.13
+16 error could not determine executable to run
+17 verbose cwd /Users/matthardage/helo-one-member-app
+18 verbose os Darwin 25.0.0
+19 verbose node v22.3.0
+20 verbose npm  v10.8.1
+21 verbose exit 1
+22 verbose code 1
+23 error A complete log of this run can be found in: /Users/matthardage/helo-one-member-app/.npm-cache/_logs/2025-09-20T09_15_16_635Z-debug-0.log

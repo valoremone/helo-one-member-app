@@ -1,5 +1,5 @@
 import { requireAdmin } from '@/lib/auth'
-import { Navigation } from '@/components/Navigation'
+import { AdminShell } from '@/components/app/AdminShell'
 
 export default async function AdminLayout({
   children,
@@ -9,11 +9,6 @@ export default async function AdminLayout({
   const userProfile = await requireAdmin()
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation userProfile={userProfile} currentPath="/admin" />
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
-    </div>
+    <AdminShell user={userProfile}>{children}</AdminShell>
   )
 }

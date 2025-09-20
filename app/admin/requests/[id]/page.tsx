@@ -4,7 +4,7 @@ import { RequestThread } from '@/components/RequestThread'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import type { Request, FlightRequest } from '@/lib/types'
+// import type { Request, FlightRequest } from '@/lib/types'
 import { notFound } from 'next/navigation'
 import { Calendar, Plane, User, MapPin, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
@@ -40,7 +40,17 @@ export default async function AdminRequestPage({ params }: AdminRequestPageProps
   }
 
   // Get flight request details if it's a flight request
-  let flightDetails: FlightRequest | null = null
+  let flightDetails: {
+    origin: string;
+    destination: string;
+    earliest_departure?: string;
+    latest_departure?: string;
+    pax_count?: number;
+    cabin_preference?: string;
+    trip_purpose?: string;
+    special_requests?: string;
+    baggage_notes?: string;
+  } | null = null
   if (request.type === 'flight') {
     const { data } = await supabase
       .from('flight_requests')

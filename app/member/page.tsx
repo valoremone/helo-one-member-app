@@ -1,113 +1,63 @@
 import { requireMember } from '@/lib/auth'
-import { createClient } from '@/lib/supabaseServer'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatCard } from '@/components/app/StatCard'
+import { GlassCard } from '@/components/app/GlassCard'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { DataTable } from '@/components/DataTable'
-import type { Request } from '@/lib/types'
+import { RequestFormSheet } from '@/components/app/RequestFormSheet'
 import Link from 'next/link'
-import { Plus, Plane, Clock, CheckCircle } from 'lucide-react'
+import { Plane, Clock, CheckCircle, Star, TrendingUp } from 'lucide-react'
 
 export default async function MemberDashboard() {
   const profile = await requireMember()
-  const supabase = await createClient()
-
-  // Get member record
-  const { data: member } = await supabase
-    .from('members')
-    .select('id')
-    .eq('user_id', profile.id)
-    .single()
-
-  // Get recent requests
-  const { data: requests } = await supabase
-    .from('requests')
-    .select('*')
-    .eq('member_id', member?.id)
-    .order('created_at', { ascending: false })
-    .limit(10)
-
-  const statusCounts = {
-    new: requests?.filter(r => r.status === 'new').length || 0,
-    in_progress: requests?.filter(r => r.status === 'in_progress').length || 0,
-    completed: requests?.filter(r => r.status === 'completed').length || 0,
-  }
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Welcome back, {profile.full_name || 'Member'}!</h1>
-          <p className="text-muted-foreground">
-            Manage your requests and access premium concierge services.
-          </p>
+      {/* Welcome Header */}
+      <div className="luxury-card">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-serif font-semibold text-foreground mb-2">
+              Welcome back, {profile.full_name || 'Member'}!
+            </h1>
+            <p className="text-muted-foreground">
+              Access premium concierge services and manage your luxury travel requests.
+            </p>
+          </div>
+          <RequestFormSheet />
         </div>
-        <Button asChild>
-          <Link href="/member/requests/new/flight">
-            <Plus className="mr-2 h-4 w-4" />
-            New Request
-          </Link>
-        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Requests</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.new}</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting review
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-            <Plane className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.in_progress}</div>
-            <p className="text-xs text-muted-foreground">
-              Being processed
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.completed}</div>
-            <p className="text-xs text-muted-foreground">
-              Successfully completed
-            </p>
-          </CardContent>
-        </Card>
+      {/* KPI Cards */}
+      <div className="grid gap-6 md:grid-cols-3">
+        <StatCard
+          title="Active Requests"
+          value="3"
+          description="Currently being processed"
+          trend={{ value: 2, label: "+2 this week" }}
+        />
+        <StatCard
+          title="Total Bookings"
+          value="12"
+          description="This year"
+          trend={{ value: 8, label: "+8%" }}
+        />
+        <StatCard
+          title="Member Tier"
+          value="Platinum"
+          description="Premium benefits active"
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <DataTable 
-            requests={requests || []} 
-            title="Recent Requests"
-          />
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Common request types
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
+      {/* Main Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Quick Actions */}
+        <div className="lg:col-span-1">
+          <GlassCard>
+            <div className="flex items-center space-x-2 mb-4">
+              <Star className="h-5 w-5 text-accent" />
+              <h3 className="text-lg font-semibold">Quick Actions</h3>
+            </div>
+            <div className="space-y-3">
               <Button asChild variant="outline" className="w-full justify-start">
                 <Link href="/member/requests/new/flight">
                   <Plane className="mr-2 h-4 w-4" />
@@ -115,43 +65,85 @@ export default async function MemberDashboard() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full justify-start">
-                <Link href="/member/requests/new/ground">
-                  <Plane className="mr-2 h-4 w-4" />
-                  Ground Transportation
+                <Link href="/member/requests/new/concierge">
+                  <Star className="mr-2 h-4 w-4" />
+                  Concierge Service
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full justify-start">
-                <Link href="/member/requests/new/experience">
-                  <Plane className="mr-2 h-4 w-4" />
-                  Experience Booking
+                <Link href="/member/bookings">
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  View Bookings
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full justify-start">
-                <Link href="/member/requests/new/general">
-                  <Plane className="mr-2 h-4 w-4" />
-                  General Request
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Your Membership</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Status</span>
-                  <Badge variant="default">Active</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Role</span>
-                  <span className="text-sm font-medium capitalize">{profile.role}</span>
-                </div>
+          {/* Membership Status */}
+          <GlassCard className="mt-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <TrendingUp className="h-5 w-5 text-accent" />
+              <h3 className="text-lg font-semibold">Your Membership</h3>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Status</span>
+                <Badge className="bg-green-500 bg-opacity-20 text-green-300 border-green-500 border-opacity-30">
+                  Active
+                </Badge>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Tier</span>
+                <span className="text-sm font-medium text-accent">Platinum</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-muted-foreground">Member Since</span>
+                <span className="text-sm font-medium">Jan 2023</span>
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="lg:col-span-2">
+          <GlassCard>
+            <div className="flex items-center space-x-2 mb-4">
+              <Clock className="h-5 w-5 text-accent" />
+              <h3 className="text-lg font-semibold">Recent Activity</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4 p-4 rounded-lg bg-soft">
+                <div className="w-2 h-2 rounded-full bg-accent"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Flight request to Aspen approved</p>
+                  <p className="text-xs text-muted-foreground">2 hours ago</p>
+                </div>
+                <Badge className="bg-green-500 bg-opacity-20 text-green-300 border-green-500 border-opacity-30">
+                  Completed
+                </Badge>
+              </div>
+              <div className="flex items-center space-x-4 p-4 rounded-lg bg-soft">
+                <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Restaurant reservation in progress</p>
+                  <p className="text-xs text-muted-foreground">1 day ago</p>
+                </div>
+                <Badge className="bg-yellow-500 bg-opacity-20 text-yellow-300 border-yellow-500 border-opacity-30">
+                  In Progress
+                </Badge>
+              </div>
+              <div className="flex items-center space-x-4 p-4 rounded-lg bg-soft">
+                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">New hotel booking request</p>
+                  <p className="text-xs text-muted-foreground">3 days ago</p>
+                </div>
+                <Badge className="bg-blue-500 bg-opacity-20 text-blue-300 border-blue-500 border-opacity-30">
+                  New
+                </Badge>
+              </div>
+            </div>
+          </GlassCard>
         </div>
       </div>
     </div>

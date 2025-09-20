@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -88,9 +88,10 @@ export default function LoginPage() {
         // Simple redirect - let the home page handle the logic
         router.push('/')
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error with password auth:', error)
-      toast.error(error.message || 'Authentication failed. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed. Please try again.'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -116,28 +117,31 @@ export default function LoginPage() {
       if (error) throw error
       toast.success('Password reset link sent! Check your email.')
       setShowForgotPassword(false)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error sending password reset:', error)
-      toast.error(error.message || 'Failed to send password reset link.')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send password reset link.'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            <div className="h-12 w-12 bg-primary rounded-xl flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-xl">H</span>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="luxury-card-strong text-center">
+          <div className="flex items-center justify-center mb-6">
+            <div className="h-16 w-16 rounded-2xl accent-gradient flex items-center justify-center">
+              <span className="text-2xl font-bold text-primary-foreground">H</span>
             </div>
           </div>
-          <CardTitle className="text-2xl">Welcome to Helo One</CardTitle>
-          <CardDescription>
-            Choose your preferred sign-in method
-          </CardDescription>
-        </CardHeader>
+          <h1 className="text-3xl font-serif font-semibold text-foreground mb-2">
+            Welcome to HELO One
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            Access your luxury travel and concierge services
+          </p>
+        </div>
         <CardContent>
           <Tabs defaultValue="password" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
@@ -199,7 +203,7 @@ export default function LoginPage() {
                       disabled={isLoading}
                       onClick={async () => {
                         setIsSignUp(true)
-                        await handlePasswordAuth(new Event('submit') as any)
+                        await handlePasswordAuth(new Event('submit') as unknown as React.FormEvent)
                       }}
                     >
                       <UserPlus className="mr-2 h-4 w-4" />
@@ -223,7 +227,7 @@ export default function LoginPage() {
                   <div className="text-center mb-4">
                     <h3 className="text-lg font-semibold">Reset Password</h3>
                     <p className="text-sm text-muted-foreground">
-                      Enter your email address and we'll send you a link to reset your password.
+                      Enter your email address and we&apos;ll send you a link to reset your password.
                     </p>
                   </div>
                   
@@ -309,7 +313,7 @@ export default function LoginPage() {
             </TabsContent>
           </Tabs>
         </CardContent>
-      </Card>
+      </div>
     </div>
   )
 }

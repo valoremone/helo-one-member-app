@@ -1,138 +1,343 @@
+import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth'
-import { createClient } from '@/lib/supabaseServer'
-import { DataTable } from '@/components/DataTable'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import type { Request } from '@/lib/types'
-import { Clock, CheckCircle, AlertCircle, Users } from 'lucide-react'
+import { BentoGrid, BentoGridItem } from '@/components/app/BentoGrid'
+import { Button } from '@/components/ui/button'
+import {
+  Calendar,
+  TrendingUp,
+  Clock,
+  Plane,
+  Sparkles,
+  BadgePercent,
+  ArrowUpRight,
+  ClipboardList,
+  Users2,
+} from 'lucide-react'
 
 export default async function AdminDashboard() {
-  const profile = await requireAdmin()
-  const supabase = await createClient()
+  const userProfile = await requireAdmin()
 
-  // Get recent requests (last 50)
-  const { data: requests } = await supabase
-    .from('requests')
-    .select(`
-      *,
-      members!inner(first_name, last_name, user_id)
-    `)
-    .order('created_at', { ascending: false })
-    .limit(50)
+  const metrics = [
+    {
+      title: 'Total Requests',
+      value: '24',
+      description: 'Submitted this month',
+      trend: '+12%',
+      accent: 'emerald' as const,
+    },
+    {
+      title: 'Total Value',
+      value: '$45,230',
+      description: 'Revenue generated YTD',
+      trend: '+8%',
+      accent: 'violet' as const,
+    },
+    {
+      title: 'Next Payout',
+      value: '$2,340',
+      description: 'Scheduled in 3 days',
+      trend: null,
+      accent: 'gold' as const,
+    },
+  ]
 
-  const statusCounts = {
-    new: requests?.filter(r => r.status === 'new').length || 0,
-    in_progress: requests?.filter(r => r.status === 'in_progress').length || 0,
-    awaiting_member: requests?.filter(r => r.status === 'awaiting_member').length || 0,
-    completed: requests?.filter(r => r.status === 'completed').length || 0,
-  }
-
-  const typeCounts = {
-    flight: requests?.filter(r => r.type === 'flight').length || 0,
-    ground: requests?.filter(r => r.type === 'ground').length || 0,
-    experience: requests?.filter(r => r.type === 'experience').length || 0,
-    general: requests?.filter(r => r.type === 'general').length || 0,
-  }
+  const schedule = [
+    {
+      title: 'Member welcome touchpoint',
+      time: '09:30 AM',
+      status: 'Awaiting confirmation',
+    },
+    {
+      title: 'Flight concierge briefing',
+      time: '02:00 PM',
+      status: 'Crew aligned',
+    },
+    {
+      title: 'Lifestyle event walkthrough',
+      time: '05:30 PM',
+      status: 'Venues locked',
+    },
+  ]
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back, {profile.full_name}. Manage requests and member services.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Requests</CardTitle>
-            <AlertCircle className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.new}</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting review
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.in_progress}</div>
-            <p className="text-xs text-muted-foreground">
-              Being processed
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Awaiting Member</CardTitle>
-            <Users className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.awaiting_member}</div>
-            <p className="text-xs text-muted-foreground">
-              Member response needed
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.completed}</div>
-            <p className="text-xs text-muted-foreground">
-              Successfully completed
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Request Types</CardTitle>
-            <CardDescription>
-              Breakdown by request type
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Flight</span>
-              <Badge variant="secondary">{typeCounts.flight}</Badge>
+    <div className="space-y-10">
+      <BentoGrid className="md:auto-rows-[minmax(240px,_1fr)]">
+        <BentoGridItem
+          className="md:col-span-4"
+          accent="gold"
+          eyebrow={new Date().toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+          })}
+          title={`Welcome back, ${userProfile.full_name || userProfile.email}`}
+          description="Here’s the snapshot of your business. Track high-touch requests, monitor revenue, and keep every member experience polished."
+          icon={<Sparkles className="h-4 w-4 text-accent" />}
+          action={
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-muted-foreground">
+                <BadgePercent className="h-4 w-4 text-accent" />
+                Signature Service Mode
+              </div>
+              <Button asChild size="sm" className="rounded-full">
+                <Link href="/admin/requests">
+                  View pipeline
+                  <ArrowUpRight className="ml-2 h-3.5 w-3.5" />
+                </Link>
+              </Button>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Ground</span>
-              <Badge variant="secondary">{typeCounts.ground}</Badge>
+          }
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex items-center gap-3 rounded-xl border border-white/12 bg-white/10 px-4 py-3 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4 text-accent" />
+              <span>Next check-in scheduled in 2 hours</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Experience</span>
-              <Badge variant="secondary">{typeCounts.experience}</Badge>
+            <div className="flex items-center gap-3 rounded-xl border border-white/12 bg-white/10 px-4 py-3 text-sm text-muted-foreground">
+              <Plane className="h-4 w-4 text-accent" />
+              <span>3 flight itineraries awaiting confirmation</span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm">General</span>
-              <Badge variant="secondary">{typeCounts.general}</Badge>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </BentoGridItem>
 
-        <div className="lg:col-span-3">
-          <DataTable 
-            requests={requests || []} 
-            title="Recent Requests"
-            showMember={true}
-          />
-        </div>
-      </div>
+        {metrics.map((metric) => (
+          <BentoGridItem
+            key={metric.title}
+            className="md:col-span-2"
+            accent={metric.accent}
+            eyebrow="Key metric"
+            title={metric.title}
+            description={metric.description}
+          >
+            <div className="flex items-end justify-between">
+              <span className="text-4xl font-serif font-semibold text-foreground">
+                {metric.value}
+              </span>
+              {metric.trend && (
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-emerald-200">
+                  {metric.trend}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {metric.description}
+            </p>
+            <Button asChild variant="ghost" size="sm" className="w-max rounded-full border border-white/10 bg-white/5 px-3 text-xs">
+              <Link href="/admin/requests">
+                View detail
+                <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </BentoGridItem>
+        ))}
+
+        <BentoGridItem
+          className="md:col-span-4 lg:row-span-2"
+          accent="violet"
+          eyebrow="Pulse"
+          title="Booking velocity"
+          description="Concierge and flight trends across the past seven days"
+          icon={<TrendingUp className="h-4 w-4 text-accent" />}
+        >
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-muted-foreground">Services in focus</h3>
+              <div className="space-y-3">
+                {[
+                  {
+                    label: 'Concierge',
+                    detail: '11 active experiences',
+                  },
+                  {
+                    label: 'Flights',
+                    detail: '6 itineraries in progress',
+                  },
+                  {
+                    label: 'Lifestyle',
+                    detail: '4 bespoke events this week',
+                  },
+                ].map((item) => (
+                  <div key={item.label} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-xs text-muted-foreground">{item.detail}</p>
+                    </div>
+                    <span className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Live</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">Member sentiment</h3>
+              <div className="rounded-2xl border border-white/12 bg-white/5 p-6 text-sm text-muted-foreground">
+                “Every touchpoint still feels bespoke. The Paris itinerary updates were seamless.”
+                <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-[0.32em] text-muted-foreground">
+                  <Sparkles className="h-4 w-4 text-accent" />
+                  Platinum Member
+                </div>
+              </div>
+            </div>
+          </div>
+        </BentoGridItem>
+
+        <BentoGridItem
+          className="md:col-span-2 lg:row-span-2"
+          accent="ocean"
+          eyebrow="Today"
+          title="Concierge schedule"
+          description="Keep high-touch experiences aligned across your day."
+          icon={<Calendar className="h-4 w-4 text-accent" />}
+        >
+          <div className="space-y-4">
+            {schedule.map((event) => (
+              <div key={event.title} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <p className="text-sm font-medium text-foreground">{event.title}</p>
+                <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{event.time}</span>
+                  <span>{event.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </BentoGridItem>
+
+        <BentoGridItem
+          className="md:col-span-3"
+          accent="emerald"
+          eyebrow="Active requests"
+          title="High-touch queue"
+          description="Prioritise member experiences that need attention today."
+          icon={<ClipboardList className="h-4 w-4 text-accent" />}
+          action={
+            <Button asChild variant="ghost" size="sm" className="w-max rounded-full border border-white/10 bg-white/5 px-3 text-xs">
+              <Link href="/admin/requests">
+                Manage requests
+                <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          }
+        >
+          <div className="space-y-3">
+            {openRequests.map((request) => (
+              <div key={request.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">{request.member}</p>
+                  <p className="text-xs text-muted-foreground">{request.type}</p>
+                </div>
+                <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{request.due}</span>
+              </div>
+            ))}
+          </div>
+        </BentoGridItem>
+
+        <BentoGridItem
+          className="md:col-span-3"
+          accent="blush"
+          eyebrow="Quick actions"
+          title="Keep momentum"
+          description="Launch the most common workflows without leaving the dashboard."
+          icon={<Sparkles className="h-4 w-4 text-accent" />}
+        >
+          <div className="space-y-4">
+            {quickActions.map((action) => (
+              <Link
+                key={action.title}
+                href={action.href}
+                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-colors hover:border-white/20 hover:bg-white/10"
+              >
+                <div>
+                  <p className="text-sm font-medium text-foreground">{action.title}</p>
+                  <p className="text-xs text-muted-foreground">{action.description}</p>
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-accent" />
+              </Link>
+            ))}
+          </div>
+        </BentoGridItem>
+
+        <BentoGridItem
+          className="md:col-span-6"
+          accent="neutral"
+          eyebrow="Member spotlight"
+          title="Top engagement this quarter"
+          description="Recognise members with the highest spend and personal interactions."
+          icon={<Users2 className="h-4 w-4 text-accent" />}
+          action={
+            <Button asChild variant="ghost" size="sm" className="w-max rounded-full border border-white/10 bg-white/5 px-3 text-xs">
+              <Link href="/admin/members">
+                View member roster
+                <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          }
+        >
+          <div className="grid gap-4 sm:grid-cols-3">
+            {topMembers.map((member) => (
+              <div key={member.name} className="space-y-2 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p className="text-sm font-medium text-foreground">{member.name}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{member.tier}</p>
+                <p className="text-sm text-muted-foreground">Spend to date: {member.spend}</p>
+              </div>
+            ))}
+          </div>
+        </BentoGridItem>
+      </BentoGrid>
     </div>
   )
 }
+  const quickActions = [
+    {
+      title: 'Create concierge request',
+      description: 'Launch the luxury request form for bespoke experiences.',
+      href: '/admin/requests',
+    },
+    {
+      title: 'Invite a member',
+      description: 'Send a personal invite email with onboarding steps.',
+      href: '/admin/members',
+    },
+    {
+      title: 'Upload shareable asset',
+      description: 'Keep your media kit updated for client outreach.',
+      href: '/admin/shareable-assets',
+    },
+  ]
+
+  const openRequests = [
+    {
+      id: 'REQ-1045',
+      member: 'Sarah Johnson',
+      type: 'Concierge',
+      due: 'Today · 5:00 PM',
+    },
+    {
+      id: 'REQ-1038',
+      member: 'Michael Brown',
+      type: 'Flight',
+      due: 'Tomorrow · 9:30 AM',
+    },
+    {
+      id: 'REQ-1026',
+      member: 'Emily Davis',
+      type: 'Lifestyle',
+      due: 'Friday · 1:00 PM',
+    },
+  ]
+
+  const topMembers = [
+    {
+      name: 'Emily Davis',
+      tier: 'Platinum',
+      spend: '$18,400',
+    },
+    {
+      name: 'John Smith',
+      tier: 'Platinum',
+      spend: '$15,900',
+    },
+    {
+      name: 'Sarah Johnson',
+      tier: 'Gold',
+      spend: '$11,250',
+    },
+  ]

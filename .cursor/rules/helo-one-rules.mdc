@@ -1,0 +1,172 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+HELO One – Cursor System Rules (Admin + Member Portal)
+
+Context
+
+You are building helo-one-member-app with Next.js (App Router, TS), Supabase (Auth + Postgres + RLS + Storage), Tailwind + shadcn/ui, Vercel. Core MVP: CRM/Member 360, OMS/Ticketing, Flight Booking Request. Ship code that runs without edits.
+
+⸻
+
+Golden Rules
+	1.	No guesses. If a requirement is ambiguous, make a conservative assumption, document it in a // ASSUMPTION: comment at the top of the file, and proceed.
+	2.	Zero broken imports, zero type errors, zero unused vars. The repo must npm run build cleanly.
+	3.	End-to-end runnable. After codegen, the app must start with npm run dev and produce the described screens behind auth guards.
+	4.	Consistency beats cleverness. Prefer clear, documented patterns over magic.
+	5.	Security first. Never expose secrets. Use Supabase RLS, server components/actions for privileged ops, and signed URLs for Storage.
+	6.	Accessibility & UX. Keyboard accessible, sensible focus states, labels for inputs, descriptive aria where needed.
+	7.	Idempotent migrations. Don’t break existing data; use if not exists and checks.
+	8.	Minimal polish is mandatory. Clean layout, spacing, empty states, loading and error UI.
+
+⸻
+
+Output Contract (for every task)
+	•	Provide only changed/created files with full contents.
+	•	Start with a TL;DR checklist of what you built and how to run it (commands).
+	•	Include acceptance tests (Playwright or React Testing Library) where applicable.
+	•	Include manual QA steps I can follow in the browser (exact URLs, seed commands).
+	•	If you create SQL, put it under supabase/migrations/*.sql and reference it in the TL;DR.
+
+⸻
+
+Project Conventions
+	•	Node: Latest LTS in .nvmrc.
+	•	Package manager: npm.
+	•	Directory:
+	•	app/ (App Router); use route groups: (public), (member), (admin).
+	•	app/member/* and app/admin/* have layout guards.
+	•	lib/ clients: supabaseServer.ts, supabaseBrowser.ts, auth.ts, validators.ts.
+	•	components/ui/* (shadcn), components/app/* (feature components).
+	•	styles/globals.css (includes Tailwind base).
+	•	supabase/migrations/* (SQL).
+	•	tests/*.
+	•	Styling: Tailwind + shadcn/ui (no inline style props). Use semantic HTML.
+	•	Icons: lucide-react.
+	•	Forms: react-hook-form + zod; show field errors inline.
+
+⸻
+
+Auth & Access
+	•	Use @supabase/ssr. Server client in server components/actions only.
+	•	Auth guard patterns:
+	•	/member/*: logged-in user with profiles.role in ('member','admin','ops').
+	•	/admin/*: profiles.role in ('admin','ops').
+	•	Never trust client data for authorization. Duplicate checks in API routes/server actions.
+
+⸻
+
+Data & RLS
+	•	Use the provided schema (profiles, members, memberships, requests, request_messages, flight_requests, attachments, member_360 view).
+	•	RLS ON for all tables. Policies must allow:
+	•	Members: CRUD only for their own rows (where applicable).
+	•	Staff: full access (admin|ops).
+	•	All writes that require elevated privileges run on the server.
+	•	Add indexes for frequent filters: requests(member_id, created_at), requests(status), request_messages(request_id, created_at).
+
+⸻
+
+API & Server Actions
+	•	API routes under app/api/* must:
+	•	Validate input with zod.
+	•	Re-check auth/role and ownership.
+	•	Return typed JSON { ok: true, data } | { ok: false, error }.
+	•	Handle errors with exhaustive try/catch; never swallow exceptions.
+
+⸻
+
+UI/UX Standards
+	•	Layout: Max width containers (max-w-5xl/6xl), generous spacing, responsive grid, sticky top nav with context (Member/Admin).
+	•	State: Always include loading, empty, and error states.
+	•	Tables/Lists: Compact at sm, comfortable at md+. Include sorting when feasible.
+	•	Forms: Label, description/help text, placeholder, validation error, and disabled submit during pending.
+	•	Feedback: Use toasts or inline success states for submissions.
+	•	Design tokens: Tailwind spacing 4/6/8/12, rounded-2xl, subtle shadows, focus rings.
+
+⸻
+
+Performance
+	•	Prefer server components for data-heavy pages; client components only when interactivity is required.
+	•	Use select lists in Supabase queries (never * unless unavoidable).
+	•	Paginate lists (default 20).
+	•	Avoid N+1: fetch joined data server-side.
+
+⸻
+
+Quality Gates
+	•	Must pass: npm run typecheck, npm run lint, npm run build.
+	•	Include Playwright or RTL smoke tests:
+	•	Can sign in (mock Supabase if needed).
+	•	Member creates a flight request.
+	•	Admin sees new request in queue.
+	•	Prettier with tailwind plugin; no eslint-disable unless justified with a comment.
+
+⸻
+
+Error Handling & Observability
+	•	Provide standardized error surface: lib/errors.ts helpers.
+	•	Console errors only on server; client uses friendly messages.
+	•	Add basic metrics hooks (stub) for request create/update.
+
+⸻
+
+Security Checklist (apply every time)
+	•	No secret keys in client bundles.
+	•	All member-visible pages fetch only the user’s rows.
+	•	File attachments use signed URLs with short TTL.
+	•	Validate and sanitize all user input (zod); strip HTML where displayed.
+
+⸻
+
+What to Build First (MVP must exist in repo)
+	1.	Auth & Guards: /login, /member, /admin layouts.
+	2.	Flight Request Form (/member/requests/new/flight) → creates requests + flight_requests and seeds request_messages.
+	3.	Admin Ops Queue (/admin) listing last 50 requests with filters: status, type.
+	4.	Ticket Detail:
+	•	Member view: thread of non-internal messages + new message composer.
+	•	Admin view: full thread with internal toggle.
+	5.	Member 360 (/admin/members/[id]) using member_360 view.
+
+Each page must be reachable from nav and have empty/loading/error states.
+
+⸻
+
+Acceptable Assumptions (don’t ask—document)
+	•	Use email magic link Supabase Auth.
+	•	Seed data via supabase/migrations/seed.sql if needed.
+	•	Minimal styling using shadcn Card, Button, Input, Label, Textarea, Badge, Tabs, Avatar, DropdownMenu, Dialog.
+
+⸻
+
+Deliverables Template (every Cursor run)
+	1.	TL;DR: bullet list of what changed + how to run.
+	2.	Files: full contents for each changed file.
+	3.	SQL: full migration files with incremental filenames.
+	4.	Tests: added/updated tests and how to run.
+	5.	Manual QA: numbered steps with exact URLs.
+	6.	Notes: // ASSUMPTION: and any follow-ups.
+
+⸻
+
+Hard “Don’ts”
+	•	Don’t leave TODOs that block core flows.
+	•	Don’t commit code that requires manual fixes to compile.
+	•	Don’t generate placeholder components with fake imports.
+	•	Don’t bypass RLS by using service role on the client.
+	•	Don’t create UI without wiring to real data.
+
+⸻
+
+Definition of Done (MVP)
+	•	Member can authenticate and submit a Flight Booking Request.
+	•	Request appears in Admin Ops Queue immediately.
+	•	Admin and Member can exchange messages on the ticket (member sees only non-internal).
+	•	Member 360 loads with memberships + recent requests.
+	•	App builds and runs locally and is deployable on Vercel.
+
+⸻
+
+If these rules conflict with speed, choose correctness, security, and UX.

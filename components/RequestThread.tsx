@@ -140,7 +140,7 @@ export function RequestThread({ requestId, isAdmin, userProfile }: RequestThread
                       </Badge>
                     )}
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-3">
+                  <div className="rounded-lg p-3 bg-muted bg-opacity-50">
                     <p className="text-sm whitespace-pre-wrap">{message.body}</p>
                   </div>
                 </div>

@@ -1,43 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabaseServer'
-import { requireMember } from '@/lib/auth'
 import { z } from 'zod'
+import { createClient } from '@/lib/supabaseServer'
 
-const createRequestSchema = z.object({
-  type: z.enum(['flight', 'ground', 'experience', 'general']),
-  subject: z.string().min(1),
+const requestSchema = z.object({
+  type: z.enum(['concierge', 'flight']),
+  title: z.string().min(1, 'Title is required'),
+  category: z.string().optional(),
+  details: z.string().min(1, 'Details are required'),
+  // Flight specific fields
   origin: z.string().optional(),
   destination: z.string().optional(),
-  earliest_departure: z.string().optional(),
-  latest_departure: z.string().optional(),
-  one_way: z.boolean().optional(),
-  return_earliest: z.string().optional(),
-  return_latest: z.string().optional(),
-  pax_count: z.number().optional(),
-  cabin_preference: z.string().optional(),
-  baggage_notes: z.string().optional(),
-  special_requests: z.string().optional(),
-  trip_purpose: z.string().optional(),
+  departureDate: z.string().optional(),
+  returnDate: z.string().optional(),
+  passengers: z.number().min(1).optional(),
+  cabin: z.string().optional(),
+  notes: z.string().optional(),
 })
 
 export async function POST(request: NextRequest) {
   try {
-    const profile = await requireMember()
+    const body = await request.json()
+    const validatedData = requestSchema.parse(body)
+
     const supabase = await createClient()
     
-    const body = await request.json()
-    const validatedData = createRequestSchema.parse(body)
+    // Get the current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
 
-    // Get the member record for this user
-    const { data: member } = await supabase
+    // Get member record
+    const { data: member, error: memberError } = await supabase
       .from('members')
       .select('id')
-      .eq('user_id', profile.id)
+      .eq('user_id', user.id)
       .single()
 
-    if (!member) {
+    if (memberError || !member) {
       return NextResponse.json(
-        { error: 'Member record not found' },
+        { ok: false, error: 'Member not found' },
         { status: 404 }
       )
     }
@@ -47,10 +52,11 @@ export async function POST(request: NextRequest) {
       .from('requests')
       .insert({
         member_id: member.id,
-        created_by: profile.id,
         type: validatedData.type,
-        subject: validatedData.subject,
-        priority: 3, // Default priority
+        subject: validatedData.title,
+        details: validatedData.details,
+        status: 'new',
+        priority: 'medium',
       })
       .select()
       .single()
@@ -58,37 +64,29 @@ export async function POST(request: NextRequest) {
     if (requestError) {
       console.error('Error creating request:', requestError)
       return NextResponse.json(
-        { error: 'Failed to create request' },
+        { ok: false, error: 'Failed to create request' },
         { status: 500 }
       )
     }
 
-    // If it's a flight request, create the flight_requests record
+    // If it's a flight request, create flight_requests record
     if (validatedData.type === 'flight') {
       const { error: flightError } = await supabase
         .from('flight_requests')
         .insert({
           request_id: newRequest.id,
-          trip_purpose: validatedData.trip_purpose,
-          pax_count: validatedData.pax_count,
-          origin: validatedData.origin || '',
-          destination: validatedData.destination || '',
-          earliest_departure: validatedData.earliest_departure,
-          latest_departure: validatedData.latest_departure,
-          return_earliest: validatedData.return_earliest,
-          return_latest: validatedData.return_latest,
-          one_way: validatedData.one_way ?? true,
-          cabin_preference: validatedData.cabin_preference,
-          baggage_notes: validatedData.baggage_notes,
-          special_requests: validatedData.special_requests,
+          origin: validatedData.origin,
+          destination: validatedData.destination,
+          departure_date: validatedData.departureDate,
+          return_date: validatedData.returnDate,
+          passengers: validatedData.passengers,
+          cabin_class: validatedData.cabin,
+          notes: validatedData.notes,
         })
 
       if (flightError) {
         console.error('Error creating flight request:', flightError)
-        return NextResponse.json(
-          { error: 'Failed to create flight request details' },
-          { status: 500 }
-        )
+        // Don't fail the whole request, just log the error
       }
     }
 
@@ -97,19 +95,24 @@ export async function POST(request: NextRequest) {
       .from('request_messages')
       .insert({
         request_id: newRequest.id,
-        author_id: profile.id,
-        body: `New ${validatedData.type} request submitted.`,
+        sender_id: user.id,
+        message: `New ${validatedData.type} request created: ${validatedData.title}`,
         is_internal: false,
       })
 
     if (messageError) {
       console.error('Error creating initial message:', messageError)
-      // Don't fail the request creation for this
+      // Don't fail the whole request, just log the error
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      request: newRequest 
+    return NextResponse.json({
+      ok: true,
+      data: {
+        id: newRequest.id,
+        type: newRequest.type,
+        subject: newRequest.subject,
+        status: newRequest.status,
+      }
     })
 
   } catch (error) {
@@ -117,13 +120,69 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.issues },
+        { ok: false, error: 'Invalid request data', details: error.issues },
         { status: 400 }
       )
     }
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { ok: false, error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET() {
+  try {
+    const supabase = await createClient()
+    
+    // Get the current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get member record
+    const { data: member, error: memberError } = await supabase
+      .from('members')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (memberError || !member) {
+      return NextResponse.json(
+        { ok: false, error: 'Member not found' },
+        { status: 404 }
+      )
+    }
+
+    // Get requests for this member
+    const { data: requests, error: requestsError } = await supabase
+      .from('requests')
+      .select('*')
+      .eq('member_id', member.id)
+      .order('created_at', { ascending: false })
+
+    if (requestsError) {
+      console.error('Error fetching requests:', requestsError)
+      return NextResponse.json(
+        { ok: false, error: 'Failed to fetch requests' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      ok: true,
+      data: requests || []
+    })
+
+  } catch (error) {
+    console.error('Error in GET /api/requests:', error)
+    return NextResponse.json(
+      { ok: false, error: 'Internal server error' },
       { status: 500 }
     )
   }

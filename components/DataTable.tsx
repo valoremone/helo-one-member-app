@@ -70,7 +70,7 @@ export function DataTable({ requests, title = 'Requests', showMember = false }: 
           {requests.map((request) => (
             <div
               key={request.id}
-              className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+              className="border rounded-lg p-4 transition-colors bg-muted bg-opacity-0 hover:bg-opacity-50"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1 space-y-2">

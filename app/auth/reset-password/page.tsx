@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -17,7 +17,7 @@ export default function ResetPasswordPage() {
   const [isSuccess, setIsSuccess] = useState(false)
   const [isValidSession, setIsValidSession] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
+  // const searchParams = useSearchParams()
 
   useEffect(() => {
     const checkSession = async () => {
@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
         setIsValidSession(true)
       } else {
         // Try to get session from URL hash
-        const { data, error } = await supabase.auth.getSession()
+        const { data } = await supabase.auth.getSession()
         if (data.session) {
           setIsValidSession(true)
         } else {
@@ -78,9 +78,10 @@ export default function ResetPasswordPage() {
         router.push('/login')
       }, 2000)
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error updating password:', error)
-      toast.error(error.message || 'Failed to update password. Please try again.')
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update password. Please try again.'
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
