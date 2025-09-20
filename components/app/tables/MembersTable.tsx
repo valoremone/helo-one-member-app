@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 export type MemberTier = "Platinum" | "Gold" | "Silver"
 export type MemberStatus = "active" | "inactive" | "pending"
 
-export interface MemberRecord {
+export interface MemberRecord extends Record<string, unknown> {
   id: string
   name: string
   email: string

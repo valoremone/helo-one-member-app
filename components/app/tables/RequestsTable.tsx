@@ -3,7 +3,7 @@
 import { DataTable, type Column } from "@/components/app/DataTable"
 import { StatusPill, type StatusVariant } from "@/components/app/StatusPill"
 
-export interface RequestRecord {
+export interface RequestRecord extends Record<string, unknown> {
   id: string
   subject: string
   type: "concierge" | "flight" | "other"

@@ -5,7 +5,7 @@ import { StatusPill, type StatusVariant } from "@/components/app/StatusPill"
 
 export type PaymentStatus = "completed" | "pending" | "canceled"
 
-export interface PaymentRecord {
+export interface PaymentRecord extends Record<string, unknown> {
   id: string
   date: string
   status: PaymentStatus

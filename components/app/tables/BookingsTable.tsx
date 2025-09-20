@@ -5,7 +5,7 @@ import { StatusPill, type StatusVariant } from "@/components/app/StatusPill"
 
 export type BookingStatus = "confirmed" | "pending" | "canceled"
 
-export interface BookingRecord {
+export interface BookingRecord extends Record<string, unknown> {
   id: string
   itinerary: string
   status: BookingStatus
