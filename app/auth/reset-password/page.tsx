@@ -22,20 +22,29 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (session) {
+
+      const { data: initialUser, error: initialError } = await supabase.auth.getUser()
+
+      if (!initialError && initialUser.user) {
         setIsValidSession(true)
-      } else {
-        // Try to get session from URL hash
-        const { data } = await supabase.auth.getSession()
-        if (data.session) {
-          setIsValidSession(true)
-        } else {
-          toast.error('Invalid or expired reset link. Please request a new one.')
-          router.push('/login')
-        }
+        return
       }
+
+      const { data: sessionData } = await supabase.auth.getSession()
+      if (!sessionData.session) {
+        toast.error('Invalid or expired reset link. Please request a new one.')
+        router.push('/login')
+        return
+      }
+
+      const { data: verifiedUser, error: verifiedError } = await supabase.auth.getUser()
+      if (!verifiedError && verifiedUser.user) {
+        setIsValidSession(true)
+        return
+      }
+
+      toast.error('Invalid or expired reset link. Please request a new one.')
+      router.push('/login')
     }
 
     checkSession()

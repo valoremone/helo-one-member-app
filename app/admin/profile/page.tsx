@@ -1,7 +1,9 @@
 import { requireAdmin } from '@/lib/auth'
+import Link from 'next/link'
 import { PageHeader } from '@/components/app/PageHeader'
 import { GlassCard } from '@/components/app/GlassCard'
 import { Button } from '@/components/ui/button'
+import { ProfilePreferencesCard } from '@/components/app/ProfilePreferencesCard'
 
 export default async function AdminProfilePage() {
   const user = await requireAdmin()
@@ -31,23 +33,20 @@ export default async function AdminProfilePage() {
               <p className="text-foreground">{user.email}</p>
             </div>
           </div>
-          <Button className="w-max rounded-full">Update profile</Button>
+          <Button className="w-max rounded-full" asChild>
+            <Link href="/admin/profile/edit">Update profile</Link>
+          </Button>
         </GlassCard>
 
-        <GlassCard className="space-y-6" hover={false}>
-          <div>
-            <h2 className="text-xl font-serif font-semibold text-foreground">Preferences</h2>
-            <p className="text-sm text-muted-foreground">
-              Control notification cadence, concierge handoff notes, and signature blocks.
-            </p>
-          </div>
-          <ul className="space-y-3 text-sm text-muted-foreground">
-            <li>• Signature updated last week.</li>
-            <li>• Concierge alerts: immediate.</li>
-            <li>• Flight briefs: daily digest at 7am.</li>
-          </ul>
-          <Button variant="outline" className="w-max rounded-full">Manage preferences</Button>
-        </GlassCard>
+        <ProfilePreferencesCard
+          title="Preferences"
+          description="Control notification cadence, concierge handoff notes, and signature blocks."
+          items={[
+            { label: 'Signature synced last week' },
+            { label: 'Concierge alerts: immediate push' },
+            { label: 'Flight briefs: daily digest at 7am' },
+          ]}
+        />
       </div>
     </div>
   )

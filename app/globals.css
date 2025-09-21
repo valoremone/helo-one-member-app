@@ -78,6 +78,11 @@
   --ring: var(--accent);
 }
 
+html {
+  min-height: 100%;
+  background: var(--bg);
+}
+
 @layer base {
   * {
     border-color: rgba(255, 255, 255, 0.1);

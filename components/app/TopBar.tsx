@@ -24,6 +24,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface TopBarProps {
   user?: {
@@ -82,15 +83,15 @@ export function TopBar({ user, onToggleSidebar }: TopBarProps) {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.32, 0.08, 0.24, 1] }}
-        className="sticky top-0 z-40 border-b border-white/10 bg-black/30 px-4 backdrop-blur-xl"
+        className="sticky top-0 z-40 px-4 pt-4"
       >
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 sm:px-2">
+        <div className="luxury-card-strong mx-auto flex h-12 max-w-7xl items-center justify-between gap-3 px-6 sm:h-[1.5rem] sm:px-6">
           <div className="flex flex-1 items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
               onClick={onToggleSidebar}
-              className="h-9 w-9 rounded-full border border-white/10 bg-white/5 text-muted-foreground hover:text-foreground md:hidden"
+              className="h-8 w-8 rounded-full border border-white/10 bg-white/10 text-foreground/80 hover:bg-white/15 hover:text-foreground sm:hidden"
             >
               <Menu className="h-4 w-4" />
               <span className="sr-only">Toggle navigation</span>
@@ -101,13 +102,13 @@ export function TopBar({ user, onToggleSidebar }: TopBarProps) {
                 href="/admin"
                 className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-semibold text-foreground shadow-[0_12px_30px_rgba(0,0,0,0.45)]"
               >
-                <span className="font-serif text-base tracking-[-0.04em]">HELO</span>
-                <span className="text-xs uppercase text-muted-foreground">One</span>
+                <span className="font-serif text-base tracking-[-0.04em]">HELO One |</span> 
+                <span className="text-xs uppercase text-muted-foreground">Admin Suite</span>
               </Link>
               <span className="text-muted-foreground">›</span>
             </div>
 
-            <nav className="flex items-center gap-2 text-sm text-muted-foreground">
+            <nav className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-muted-foreground">
               {breadcrumb.map((item, index) => (
                 <div key={`${item.href}-${index}`} className="flex items-center gap-2">
                   {index > 0 && <span className="opacity-60">›</span>}
@@ -132,47 +133,59 @@ export function TopBar({ user, onToggleSidebar }: TopBarProps) {
               variant="ghost"
               size="sm"
               onClick={() => setCommandOpen(true)}
-              className="group hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 text-sm text-muted-foreground hover:text-foreground sm:inline-flex"
+              className="group hidden items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-xs text-foreground/85 shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all hover:bg-white/15 hover:text-foreground sm:inline-flex"
             >
               <Search className="h-4 w-4" />
               <span>Search</span>
-              <kbd className="ml-1 hidden rounded-full border border-white/10 bg-black/40 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:flex">
+              <kbd className="ml-1 hidden rounded-full border border-white/10 bg-white/40 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:flex">
                 <span>⌘</span>K
               </kbd>
             </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setCommandOpen(true)}
-              className="h-9 w-9 rounded-full border border-white/10 bg-white/5 text-muted-foreground hover:text-foreground sm:hidden"
-            >
-              <Search className="h-4 w-4" />
-              <span className="sr-only">Search</span>
-            </Button>
+            <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)]">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setCommandOpen(true)}
+                className="h-8 w-8 rounded-full border border-white/10 bg-white/10 text-foreground/85 hover:bg-white/15 hover:text-foreground sm:hidden"
+              >
+                <Search className="h-6 w-6" />
+                <span className="sr-only">Search</span>
+              </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 rounded-full border border-white/10 bg-white/5 text-muted-foreground hover:text-foreground"
-            >
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Notifications</span>
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  toast("No new notifications", {
+                    description: "We’ll let you know the moment something needs your attention.",
+                  })
+                }
+                className="h-8 w-8 rounded-full border border-white/10 bg-white/10 text-foreground/85 hover:bg-white/15 hover:text-foreground"
+              >
+                <Bell className="h-4 w-4" />
+                <span className="sr-only">Notifications</span>
+              </Button>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hidden h-9 w-9 rounded-full border border-white/10 bg-white/5 text-muted-foreground hover:text-foreground sm:inline-flex"
-            >
-              <HelpCircle className="h-4 w-4" />
-              <span className="sr-only">Help</span>
-            </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  toast("Concierge support", {
+                    description: "Email concierge@helo.one or tap the knowledge base.",
+                  })
+                }
+                className="hidden h-8 w-8 rounded-full border border-white/10 bg-white/10 text-foreground/85 hover:bg-white/15 hover:text-foreground sm:inline-flex"
+              >
+                <HelpCircle className="h-4 w-4" />
+                <span className="sr-only">Help</span>
+              </Button>
+            </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full border border-white/10 bg-white/5 p-0">
-                  <Avatar className="h-10 w-10">
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full border border-white/10 bg-white/10 p-0 text-foreground shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all hover:bg-white/15">
+                  <Avatar className="h-9 w-9">
                     <AvatarImage src={user?.avatar_url || undefined} alt={user?.full_name || undefined} />
                     <AvatarFallback className="bg-accent-soft text-sm font-semibold text-accent">
                       {user?.full_name
@@ -196,16 +209,32 @@ export function TopBar({ user, onToggleSidebar }: TopBarProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/profile" className="flex w-full items-center">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault()
+                    toast("Workspace preferences", {
+                      description: "Manage notification cadence and signatures in the operator settings panel (coming soon).",
+                    })
+                  }}
+                >
                   <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                  <span>Preferences</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-white/10" />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault()
+                    toast("Signed out", {
+                      description: "You’ll be redirected momentarily.",
+                    })
+                  }}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>

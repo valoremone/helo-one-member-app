@@ -16,7 +16,7 @@ export function BentoGrid({ className, children }: BentoGridProps) {
   return (
     <div
       className={cn(
-        "grid gap-6 md:grid-cols-6 md:auto-rows-auto lg:auto-rows-[minmax(260px,_1fr)]",
+        "grid auto-rows-auto gap-y-10 gap-x-6 items-stretch md:grid-cols-6",
         className
       )}
     >
@@ -58,7 +58,7 @@ export function BentoGridItem({
   return (
     <GlassCard
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border-white/12 p-6",
+        "group relative flex flex-col overflow-hidden rounded-2xl border-white/12 p-6",
         className
       )}
       transition={{ duration: 0.5, ease: [0.32, 0.08, 0.24, 1] }}
@@ -72,7 +72,7 @@ export function BentoGridItem({
           accentMap[accent]
         )}
       />
-      <div className="relative flex flex-1 flex-col gap-5">
+      <div className="relative flex min-h-full flex-col gap-5">
         {(eyebrow || icon) && (
           <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.32em] text-muted-foreground">
             {eyebrow && <span>{eyebrow}</span>}

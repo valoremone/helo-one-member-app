@@ -60,10 +60,10 @@ export default async function AdminDashboard() {
   ]
 
   return (
-    <div className="space-y-10">
-      <BentoGrid className="md:auto-rows-[minmax(240px,_1fr)]">
+    <div className="space-y-12">
+      <BentoGrid className="md:auto-rows-[minmax(20px,_1fr)]">
         <BentoGridItem
-          className="md:col-span-4"
+          className="md:col-span-6 lg:row-span-1 md:row-span-1"
           accent="gold"
           eyebrow={new Date().toLocaleDateString(undefined, {
             weekday: 'long',
@@ -103,7 +103,7 @@ export default async function AdminDashboard() {
         {metrics.map((metric) => (
           <BentoGridItem
             key={metric.title}
-            className="md:col-span-2"
+            className="md:col-span-2 lg:row-span-1 md:row-span-1"
             accent={metric.accent}
             eyebrow="Key metric"
             title={metric.title}
@@ -132,7 +132,7 @@ export default async function AdminDashboard() {
         ))}
 
         <BentoGridItem
-          className="md:col-span-4 lg:row-span-2"
+          className="md:col-span-4 lg:row-span-2 md:row-span-1"
           accent="violet"
           eyebrow="Pulse"
           title="Booking velocity"
@@ -181,7 +181,7 @@ export default async function AdminDashboard() {
         </BentoGridItem>
 
         <BentoGridItem
-          className="md:col-span-2 lg:row-span-2"
+          className="md:col-span-2 lg:row-span-2 md:row-span-1 gap-y-10"
           accent="ocean"
           eyebrow="Today"
           title="Concierge schedule"
@@ -202,7 +202,7 @@ export default async function AdminDashboard() {
         </BentoGridItem>
 
         <BentoGridItem
-          className="md:col-span-3"
+          className="md:col-span-3 lg:row-span-2 md:row-span-1"
           accent="emerald"
           eyebrow="Active requests"
           title="High-touch queue"
@@ -231,14 +231,14 @@ export default async function AdminDashboard() {
         </BentoGridItem>
 
         <BentoGridItem
-          className="md:col-span-3"
+          className="md:col-span-3 lg:row-span-2 md:row-span-1"
           accent="blush"
           eyebrow="Quick actions"
           title="Keep momentum"
           description="Launch the most common workflows without leaving the dashboard."
           icon={<Sparkles className="h-4 w-4 text-accent" />}
         >
-          <div className="space-y-4">
+          <div className="space-y-3">
             {quickActions.map((action) => (
               <Link
                 key={action.title}
@@ -256,7 +256,7 @@ export default async function AdminDashboard() {
         </BentoGridItem>
 
         <BentoGridItem
-          className="md:col-span-6"
+          className="md:col-span-6 lg:row-span-2 md:row-span-1"
           accent="neutral"
           eyebrow="Member spotlight"
           title="Top engagement this quarter"
@@ -271,7 +271,7 @@ export default async function AdminDashboard() {
             </Button>
           }
         >
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             {topMembers.map((member) => (
               <div key={member.name} className="space-y-2 rounded-2xl border border-white/10 bg-white/5 p-4">
                 <p className="text-sm font-medium text-foreground">{member.name}</p>
