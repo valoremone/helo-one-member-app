@@ -39,7 +39,7 @@ const columns: Column<RequestRecord>[] = [
     key: "status",
     label: "Status",
     sortable: true,
-    render: (value) => <StatusPill status={value} />,
+    render: (value) => <StatusPill status={value as StatusVariant} />,
   },
   {
     key: "priority",
