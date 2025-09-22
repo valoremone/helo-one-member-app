@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { requireAdmin } from '@/lib/auth'
+import { createClient } from '@/lib/supabaseServer'
 import { PageHeader } from '@/components/app/PageHeader'
 import { GlassCard } from '@/components/app/GlassCard'
 import { Button } from '@/components/ui/button'
@@ -12,7 +13,12 @@ type ProfileMetadata = {
 
 export default async function AdminProfileEditPage() {
   const user = await requireAdmin()
-  const metadata = (user.raw_user_meta_data as ProfileMetadata | null) ?? {}
+  const supabase = await createClient()
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser()
+
+  const metadata = (authUser?.user_metadata as ProfileMetadata | null) ?? {}
 
   const profileDefaults = {
     fullName: user.full_name ?? '',
