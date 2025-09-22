@@ -1,6 +1,6 @@
-export type RequestType = 'flight' | 'ground' | 'experience' | 'general'
+export type RequestType = 'flight' | 'concierge' | 'other'
 export type RequestStatus = 'new' | 'in_progress' | 'awaiting_member' | 'completed' | 'canceled'
-export type MemberStatus = 'active' | 'inactive' | 'prospect'
+export type MemberStatus = 'active' | 'inactive' | 'pending' | 'prospect'
 export type MembershipStatus = 'active' | 'expired' | 'pending'
 export type UserRole = 'member' | 'admin' | 'ops'
 
@@ -25,8 +25,10 @@ export interface Member {
   user_id: string | null
   external_ref: string | null
   status: MemberStatus
+  tier: string | null
   first_name: string | null
   last_name: string | null
+  email: string
   phone: string | null
   preferred_airport: string | null
   city: string | null
@@ -53,7 +55,8 @@ export interface Request {
   type: RequestType
   status: RequestStatus
   subject: string
-  priority: number
+  details: string | null
+  priority: 'high' | 'medium' | 'low'
   created_at: string
   updated_at: string
 }
@@ -61,26 +64,25 @@ export interface Request {
 export interface RequestMessage {
   id: string
   request_id: string
-  author_id: string | null
-  body: string | null
+  sender_id: string | null
+  message: string | null
   is_internal: boolean
   created_at: string
+  profiles?: {
+    full_name: string | null
+    avatar_url: string | null
+  } | null
 }
 
 export interface FlightRequest {
   request_id: string
-  trip_purpose: string | null
-  pax_count: number | null
-  origin: string
-  destination: string
-  earliest_departure: string | null
-  latest_departure: string | null
-  return_earliest: string | null
-  return_latest: string | null
-  one_way: boolean
-  cabin_preference: string | null
-  baggage_notes: string | null
-  special_requests: string | null
+  origin: string | null
+  destination: string | null
+  departure_date: string | null
+  return_date: string | null
+  passengers: number | null
+  cabin_class: string | null
+  notes: string | null
 }
 
 export interface Attachment {

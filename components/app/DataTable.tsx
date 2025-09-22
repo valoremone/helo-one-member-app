@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ReactNode } from "react"
 import { Search, Filter, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,6 +28,7 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void
   emptyMessage?: string
   className?: string
+  renderActions?: (row: T) => ReactNode
 }
 
 export function DataTable<T extends Record<string, unknown>>({
@@ -37,6 +38,7 @@ export function DataTable<T extends Record<string, unknown>>({
   onRowClick,
   emptyMessage = "No data available",
   className,
+  renderActions,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState("")
   const [sortKey, setSortKey] = useState<keyof T | null>(null)
@@ -152,19 +154,30 @@ export function DataTable<T extends Record<string, unknown>>({
                       : String(row[column.key])}
                   </td>
                 ))}
-                <td className="px-4 py-4 text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="rounded-full border border-white/10 bg-white/5">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="border border-white/10 bg-black/80 text-foreground backdrop-blur-xl">
-                      <DropdownMenuItem>View</DropdownMenuItem>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <td className="px-4 py-4 text-right" onClick={(event) => event.stopPropagation()}>
+                  {renderActions ? (
+                    renderActions(row)
+                  ) : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="rounded-full border border-white/10 bg-white/5"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="border border-white/10 bg-black/80 text-foreground backdrop-blur-xl"
+                      >
+                        <DropdownMenuItem>View</DropdownMenuItem>
+                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </td>
               </motion.tr>
             ))}

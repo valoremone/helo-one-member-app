@@ -3,6 +3,7 @@
 import { DataTable, type Column } from "@/components/app/DataTable"
 import { StatusPill, type StatusVariant } from "@/components/app/StatusPill"
 import { cn } from "@/lib/utils"
+import type { ReactNode } from "react"
 
 export type MemberTier = "Platinum" | "Gold" | "Silver"
 export type MemberStatus = "active" | "inactive" | "pending"
@@ -103,9 +104,11 @@ const columns: Column<MemberRecord>[] = [
 
 interface MembersTableProps {
   data: MemberRecord[]
+  onRowClick?: (row: MemberRecord) => void
+  renderActions?: (row: MemberRecord) => ReactNode
 }
 
-export function MembersTable({ data }: MembersTableProps) {
+export function MembersTable({ data, onRowClick, renderActions }: MembersTableProps) {
   return (
     <DataTable
       data={data}
@@ -113,6 +116,8 @@ export function MembersTable({ data }: MembersTableProps) {
       searchKey="name"
       emptyMessage="No members found"
       className="border-white/10"
+      onRowClick={onRowClick}
+      renderActions={renderActions}
     />
   )
 }

@@ -23,9 +23,8 @@ const statusColors: Record<RequestStatus, string> = {
 
 const typeColors: Record<RequestType, string> = {
   flight: 'bg-purple-100 text-purple-800',
-  ground: 'bg-green-100 text-green-800',
-  experience: 'bg-pink-100 text-pink-800',
-  general: 'bg-gray-100 text-gray-800',
+  concierge: 'bg-green-100 text-green-800',
+  other: 'bg-gray-100 text-gray-800',
 }
 
 export function DataTable({ requests, title = 'Requests', showMember = false }: DataTableProps) {
@@ -39,10 +38,15 @@ export function DataTable({ requests, title = 'Requests', showMember = false }: 
     })
   }
 
-  const getPriorityColor = (priority: number) => {
-    if (priority <= 2) return 'text-red-600 font-semibold'
-    if (priority === 3) return 'text-yellow-600 font-medium'
-    return 'text-green-600'
+  const getPriorityColor = (priority: Request['priority']) => {
+    switch (priority) {
+      case 'high':
+        return 'text-red-600 font-semibold'
+      case 'medium':
+        return 'text-yellow-600 font-medium'
+      default:
+        return 'text-green-600'
+    }
   }
 
   if (requests.length === 0) {
@@ -82,7 +86,7 @@ export function DataTable({ requests, title = 'Requests', showMember = false }: 
                       {request.status.replace('_', ' ')}
                     </Badge>
                     <span className={`text-sm ${getPriorityColor(request.priority)}`}>
-                      Priority {request.priority}
+                      Priority {request.priority.toUpperCase()}
                     </span>
                   </div>
                   

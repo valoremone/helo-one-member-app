@@ -1,51 +1,59 @@
 import { requireAdmin } from '@/lib/auth'
+import { createClient } from '@/lib/supabaseServer'
 import { PageHeader } from '@/components/app/PageHeader'
 import { RequestFormSheet } from '@/components/app/RequestFormSheet'
 import { EmptyState } from '@/components/app/EmptyState'
 import { RequestsTable, type RequestRecord } from '@/components/app/tables/RequestsTable'
 import { ClipboardList } from 'lucide-react'
 
-const mockRequests: RequestRecord[] = [
-  {
-    id: '1',
-    subject: 'Private Jet to Aspen',
-    type: 'flight',
-    status: 'new',
-    priority: 'high',
-    member: 'John Smith',
-    created: '2024-01-15',
-  },
-  {
-    id: '2',
-    subject: 'Restaurant Reservations',
-    type: 'concierge',
-    status: 'in_progress',
-    priority: 'medium',
-    member: 'Sarah Johnson',
-    created: '2024-01-14',
-  },
-  {
-    id: '3',
-    subject: 'Hotel Booking - Paris',
-    type: 'concierge',
-    status: 'awaiting_member',
-    priority: 'low',
-    member: 'Michael Brown',
-    created: '2024-01-13',
-  },
-  {
-    id: '4',
-    subject: 'Event Tickets - Wimbledon',
-    type: 'concierge',
-    status: 'completed',
-    priority: 'high',
-    member: 'Emily Davis',
-    created: '2024-01-12',
-  },
-]
-
 export default async function AdminRequestsPage() {
   await requireAdmin()
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('requests')
+    .select('id, subject, type, status, priority, created_at, members:member_id ( first_name, last_name, email, tier )')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Failed to load requests', error)
+    throw new Error('Unable to load requests')
+  }
+
+  type MemberJoin = {
+    first_name: string | null
+    last_name: string | null
+    email: string
+    tier: string | null
+  }
+
+  type AdminRequestRow = {
+    id: string
+    subject: string
+    type: string
+    status: string
+    priority: string
+    created_at: string
+    members: MemberJoin | MemberJoin[] | null
+  }
+
+  const requestRows: RequestRecord[] = ((data ?? []) as AdminRequestRow[]).map((row) => {
+    const member = Array.isArray(row.members) ? (row.members[0] ?? null) : row.members
+
+    const memberName = member
+      ? [member.first_name, member.last_name].filter(Boolean).join(' ') || member.email
+      : 'Unknown member'
+
+    return {
+      id: row.id,
+      subject: row.subject,
+      type: row.type as RequestRecord['type'],
+      status: row.status as RequestRecord['status'],
+      priority: row.priority as RequestRecord['priority'],
+      member: memberName,
+      created: row.created_at,
+    }
+  })
 
   return (
     <div className="space-y-8">
@@ -55,14 +63,14 @@ export default async function AdminRequestsPage() {
         actions={<RequestFormSheet />}
       />
 
-      {mockRequests.length === 0 ? (
+      {requestRows.length === 0 ? (
         <EmptyState
           icon={<ClipboardList className="h-8 w-8 text-muted-foreground" />}
           title="No requests yet"
           description="When members submit requests, they'll appear here for you to manage."
         />
       ) : (
-        <RequestsTable data={mockRequests} />
+        <RequestsTable data={requestRows} />
       )}
     </div>
   )

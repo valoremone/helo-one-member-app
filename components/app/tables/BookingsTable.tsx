@@ -11,6 +11,7 @@ export interface BookingRecord extends Record<string, unknown> {
   status: BookingStatus
   amount: string
   commission: string
+  member: string
   bookedDate: string
 }
 
@@ -29,6 +30,16 @@ const columns: Column<BookingRecord>[] = [
       <div className="space-y-1">
         <p className="text-sm font-medium text-foreground">{value as string}</p>
         <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Journey</p>
+      </div>
+    ),
+  },
+  {
+    key: "member",
+    label: "Member",
+    sortable: true,
+    render: (value) => (
+      <div>
+        <p className="text-sm font-medium text-foreground">{value as string}</p>
       </div>
     ),
   },

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Menu, Search, Bell, HelpCircle, User, LogOut, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -37,7 +37,9 @@ interface TopBarProps {
 
 export function TopBar({ user, onToggleSidebar }: TopBarProps) {
   const [commandOpen, setCommandOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
+  const router = useRouter()
 
   // Generate breadcrumb from pathname
   const breadcrumb = useMemo(() => {
@@ -129,24 +131,41 @@ export function TopBar({ user, onToggleSidebar }: TopBarProps) {
           </div>
 
           <div className="flex flex-1 items-center justify-end gap-2 sm:gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setCommandOpen(true)}
-              className="group hidden items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-xs text-foreground/85 shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all hover:bg-white/15 hover:text-foreground sm:inline-flex"
+            <form
+              role="search"
+              className="hidden h-9 items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 text-xs text-foreground/85 shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all hover:bg-white/15 hover:text-foreground focus-within:border-white/20 focus-within:bg-white/15 sm:flex"
+              onSubmit={(event) => {
+                event.preventDefault()
+                setCommandOpen(true)
+              }}
             >
-              <Search className="h-4 w-4" />
-              <span>Search</span>
-              <kbd className="ml-1 hidden rounded-full border border-white/10 bg-white/40 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:flex">
+              <Search className="h-4 w-4 text-foreground/75" aria-hidden="true" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => {
+                  const value = event.target.value
+                  setSearchQuery(value)
+                  setCommandOpen(true)
+                }}
+                onFocus={() => setCommandOpen(true)}
+                placeholder="Search…"
+                className="w-36 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none sm:w-40 lg:w-56"
+                aria-label="Search"
+              />
+              <kbd className="ml-auto hidden rounded-full border border-white/10 bg-white/40 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground lg:flex">
                 <span>⌘</span>K
               </kbd>
-            </Button>
+            </form>
 
             <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)]">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setCommandOpen(true)}
+                onClick={() => {
+                  setSearchQuery("")
+                  setCommandOpen(true)
+                }}
                 className="h-8 w-8 rounded-full border border-white/10 bg-white/10 text-foreground/85 hover:bg-white/15 hover:text-foreground sm:hidden"
               >
                 <Search className="h-6 w-6" />
@@ -244,30 +263,143 @@ export function TopBar({ user, onToggleSidebar }: TopBarProps) {
         </div>
       </motion.header>
 
-      <CommandDialog open={commandOpen} onOpenChange={setCommandOpen}>
-        <CommandInput placeholder="Search for requests, members, or quick actions…" />
+      <CommandDialog
+        open={commandOpen}
+        onOpenChange={(open) => {
+          setCommandOpen(open)
+          if (!open) {
+            setSearchQuery("")
+          }
+        }}
+      >
+        <CommandInput
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+          placeholder="Search for requests, members, or quick actions…"
+        />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Quick Actions">
-            <CommandItem>
-              <span>New Request</span>
+            <CommandItem
+              value="New Request create concierge flight"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/requests")
+              }}
+            >
+              <div className="flex flex-col">
+                <span>New Request</span>
+                <span className="text-xs text-muted-foreground">Start a concierge or flight request</span>
+              </div>
             </CommandItem>
-            <CommandItem>
-              <span>View Members</span>
+            <CommandItem
+              value="View Members directory roster"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/members")
+              }}
+            >
+              <div className="flex flex-col">
+                <span>View Members</span>
+                <span className="text-xs text-muted-foreground">Open the member roster</span>
+              </div>
             </CommandItem>
-            <CommandItem>
-              <span>View Bookings</span>
+            <CommandItem
+              value="View Bookings itineraries"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/bookings")
+              }}
+            >
+              <div className="flex flex-col">
+                <span>View Bookings</span>
+                <span className="text-xs text-muted-foreground">See upcoming itineraries</span>
+              </div>
             </CommandItem>
           </CommandGroup>
           <CommandGroup heading="Navigation">
-            <CommandItem>
+            <CommandItem
+              value="Dashboard home"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin")
+              }}
+            >
               <span>Dashboard</span>
             </CommandItem>
-            <CommandItem>
+            <CommandItem
+              value="Requests"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/requests")
+              }}
+            >
               <span>Requests</span>
             </CommandItem>
-            <CommandItem>
+            <CommandItem
+              value="Members roster"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/members")
+              }}
+            >
               <span>Members</span>
+            </CommandItem>
+            <CommandItem
+              value="Payments billing"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/payments")
+              }}
+            >
+              <span>Payments</span>
+            </CommandItem>
+            <CommandItem
+              value="Templates forms"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/templates-and-forms")
+              }}
+            >
+              <span>Templates & Forms</span>
+            </CommandItem>
+            <CommandItem
+              value="Brand assets"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/brand-assets")
+              }}
+            >
+              <span>Brand Assets</span>
+            </CommandItem>
+            <CommandItem
+              value="Shareable assets"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/shareable-assets")
+              }}
+            >
+              <span>Shareable Assets</span>
+            </CommandItem>
+            <CommandItem
+              value="Profile settings"
+              onSelect={() => {
+                setCommandOpen(false)
+                setSearchQuery("")
+                router.push("/admin/profile")
+              }}
+            >
+              <span>Profile</span>
             </CommandItem>
           </CommandGroup>
         </CommandList>

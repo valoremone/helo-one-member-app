@@ -59,7 +59,7 @@ export function RequestThread({ requestId, isAdmin, userProfile }: RequestThread
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          body: newMessage,
+          message: newMessage,
           is_internal: isInternal,
         }),
       })
@@ -117,19 +117,24 @@ export function RequestThread({ requestId, isAdmin, userProfile }: RequestThread
           </p>
         ) : (
           <div className="space-y-4">
-            {messages.map((message) => (
-              <div key={message.id} className="flex gap-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={userProfile.avatar_url || undefined} />
-                  <AvatarFallback>
-                    {getInitials(userProfile.full_name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">
-                      {userProfile.full_name || 'Unknown User'}
-                    </span>
+            {messages.map((message) => {
+              const profile = message.profiles
+              const displayName = profile?.full_name || userProfile.full_name || 'Unknown User'
+              const avatarUrl = profile?.avatar_url || userProfile.avatar_url || undefined
+
+              return (
+                <div key={message.id} className="flex gap-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatarUrl || undefined} />
+                    <AvatarFallback>
+                      {getInitials(displayName)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">
+                        {displayName}
+                      </span>
                     <span className="text-xs text-muted-foreground">
                       {formatDate(message.created_at)}
                     </span>
@@ -140,12 +145,13 @@ export function RequestThread({ requestId, isAdmin, userProfile }: RequestThread
                       </Badge>
                     )}
                   </div>
-                  <div className="rounded-lg p-3 bg-muted bg-opacity-50">
-                    <p className="text-sm whitespace-pre-wrap">{message.body}</p>
+                    <div className="rounded-lg p-3 bg-muted bg-opacity-50">
+                      <p className="text-sm whitespace-pre-wrap">{message.message}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
 

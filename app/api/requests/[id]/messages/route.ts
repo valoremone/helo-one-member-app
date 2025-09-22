@@ -4,7 +4,7 @@ import { requireMember } from '@/lib/auth'
 import { z } from 'zod'
 
 const createMessageSchema = z.object({
-  body: z.string().min(1),
+  message: z.string().min(1),
   is_internal: z.boolean().default(false),
 })
 
@@ -56,11 +56,11 @@ export async function GET(
       .from('request_messages')
       .select(`
         id,
-        body,
+        message,
         is_internal,
         created_at,
-        author_id,
-        profiles!inner(full_name, avatar_url)
+        sender_id,
+        profiles:sender_id(full_name, avatar_url)
       `)
       .eq('request_id', requestId)
       .order('created_at', { ascending: true })
@@ -149,17 +149,17 @@ export async function POST(
       .from('request_messages')
       .insert({
         request_id: requestId,
-        author_id: profile.id,
-        body: validatedData.body,
+        sender_id: profile.id,
+        message: validatedData.message,
         is_internal: validatedData.is_internal,
       })
       .select(`
         id,
-        body,
+        message,
         is_internal,
         created_at,
-        author_id,
-        profiles!inner(full_name, avatar_url)
+        sender_id,
+        profiles:sender_id(full_name, avatar_url)
       `)
       .single()
 
