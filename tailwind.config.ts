@@ -10,8 +10,26 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        serif: ["Playfair Display", "serif"],
+        sans: [
+          "var(--font-sans)",
+          "Monument Extended",
+          "Inter",
+          "system-ui",
+          "sans-serif",
+        ],
+        serif: [
+          "var(--font-serif)",
+          "The Seasons",
+          "Playfair Display",
+          "serif",
+        ],
+        mono: [
+          "var(--font-mono)",
+          "Geist Mono",
+          "SFMono-Regular",
+          "Menlo",
+          "monospace",
+        ],
       },
       colors: {
         // Luxury glass theme colors

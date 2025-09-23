@@ -68,14 +68,12 @@ export function MemberManagementTable({ members }: MemberManagementTableProps) {
     : null
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">
-            Maintain your concierge roster and keep records synchronized across requests and bookings.
-          </p>
-        </div>
-        <Button className="rounded-full" onClick={() => setCreateOpen(true)}>
+    <div className="stack-roomy">
+      <div className="flex flex-col gap-4 rounded-2xl border border-white/12 bg-white/6 p-5 shadow-[0_18px_48px_rgba(5,6,10,0.65)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <p className="text-sm text-muted-foreground md:text-base">
+          Maintain your concierge roster and keep records synchronized across requests and bookings.
+        </p>
+        <Button onClick={() => setCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           New member
         </Button>

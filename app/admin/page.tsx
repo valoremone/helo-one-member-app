@@ -60,7 +60,7 @@ export default async function AdminDashboard() {
   ]
 
   return (
-    <div className="space-y-12">
+    <div className="stack-roomy">
       <BentoGrid className="md:auto-rows-[minmax(20px,_1fr)]">
         <BentoGridItem
           className="md:col-span-6 lg:row-span-1 md:row-span-1"
@@ -79,7 +79,7 @@ export default async function AdminDashboard() {
                 <BadgePercent className="h-4 w-4 text-accent" />
                 Signature Service Mode
               </div>
-              <Button asChild size="sm" className="rounded-full">
+              <Button asChild size="sm">
                 <Link href="/admin/requests">
                   View pipeline
                   <ArrowUpRight className="ml-2 h-3.5 w-3.5" />
@@ -89,11 +89,11 @@ export default async function AdminDashboard() {
           }
         >
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="flex items-center gap-3 rounded-xl border border-white/12 bg-white/10 px-4 py-3 text-sm text-muted-foreground">
+            <div className="surface-tile flex items-center gap-3 text-sm text-muted-foreground">
               <Clock className="h-4 w-4 text-accent" />
               <span>Next check-in scheduled in 2 hours</span>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-white/12 bg-white/10 px-4 py-3 text-sm text-muted-foreground">
+            <div className="surface-tile flex items-center gap-3 text-sm text-muted-foreground">
               <Plane className="h-4 w-4 text-accent" />
               <span>3 flight itineraries awaiting confirmation</span>
             </div>
@@ -114,7 +114,7 @@ export default async function AdminDashboard() {
                 {metric.value}
               </span>
               {metric.trend && (
-                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-emerald-200">
+                <span className="badge-soft text-emerald-200">
                   {metric.trend}
                 </span>
               )}
@@ -122,7 +122,12 @@ export default async function AdminDashboard() {
             <p className="text-xs text-muted-foreground">
               {metric.description}
             </p>
-            <Button asChild variant="ghost" size="sm" className="w-max rounded-full border border-white/10 bg-white/5 px-3 text-xs">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="w-max text-[0.7rem] uppercase tracking-[0.24em]"
+            >
               <Link href="/admin/requests">
                 View detail
                 <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
@@ -157,7 +162,7 @@ export default async function AdminDashboard() {
                     detail: '4 bespoke events this week',
                   },
                 ].map((item) => (
-                  <div key={item.label} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                  <div key={item.label} className="surface-tile flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-foreground">{item.label}</p>
                       <p className="text-xs text-muted-foreground">{item.detail}</p>
@@ -169,7 +174,7 @@ export default async function AdminDashboard() {
             </div>
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-muted-foreground">Member sentiment</h3>
-              <div className="rounded-2xl border border-white/12 bg-white/5 p-6 text-sm text-muted-foreground">
+              <div className="surface-card text-sm text-muted-foreground">
                 “Every touchpoint still feels bespoke. The Paris itinerary updates were seamless.”
                 <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-[0.32em] text-muted-foreground">
                   <Sparkles className="h-4 w-4 text-accent" />
@@ -190,7 +195,7 @@ export default async function AdminDashboard() {
         >
           <div className="space-y-4">
             {schedule.map((event) => (
-              <div key={event.title} className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <div key={event.title} className="surface-tile space-y-2">
                 <p className="text-sm font-medium text-foreground">{event.title}</p>
                 <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                   <span>{event.time}</span>
@@ -209,7 +214,12 @@ export default async function AdminDashboard() {
           description="Prioritise member experiences that need attention today."
           icon={<ClipboardList className="h-4 w-4 text-accent" />}
           action={
-            <Button asChild variant="ghost" size="sm" className="w-max rounded-full border border-white/10 bg-white/5 px-3 text-xs">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="w-max text-[0.7rem] uppercase tracking-[0.24em]"
+            >
               <Link href="/admin/requests">
                 Manage requests
                 <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
@@ -219,7 +229,7 @@ export default async function AdminDashboard() {
         >
           <div className="space-y-3">
             {openRequests.map((request) => (
-              <div key={request.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+              <div key={request.id} className="surface-tile flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-foreground">{request.member}</p>
                   <p className="text-xs text-muted-foreground">{request.type}</p>
@@ -243,7 +253,7 @@ export default async function AdminDashboard() {
               <Link
                 key={action.title}
                 href={action.href}
-                className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-colors hover:border-white/20 hover:bg-white/10"
+                className="surface-tile flex items-center justify-between gap-3 transition-colors hover:border-white/25 hover:bg-white/12"
               >
                 <div>
                   <p className="text-sm font-medium text-foreground">{action.title}</p>
@@ -263,7 +273,12 @@ export default async function AdminDashboard() {
           description="Recognise members with the highest spend and personal interactions."
           icon={<Users2 className="h-4 w-4 text-accent" />}
           action={
-            <Button asChild variant="ghost" size="sm" className="w-max rounded-full border border-white/10 bg-white/5 px-3 text-xs">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="w-max text-[0.7rem] uppercase tracking-[0.24em]"
+            >
               <Link href="/admin/members">
                 View member roster
                 <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
@@ -327,17 +342,17 @@ export default async function AdminDashboard() {
   const topMembers = [
     {
       name: 'Emily Davis',
-      tier: 'Platinum',
+      tier: 'Founding50',
       spend: '$18,400',
     },
     {
       name: 'John Smith',
-      tier: 'Platinum',
+      tier: 'Founding50',
       spend: '$15,900',
     },
     {
       name: 'Sarah Johnson',
-      tier: 'Gold',
+      tier: 'House',
       spend: '$11,250',
     },
   ]

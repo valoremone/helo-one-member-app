@@ -9,6 +9,7 @@ A premium concierge services platform with dedicated member and operator experie
 - **Brand Enablement Toolkit**: Curated brand assets, shareable media, and communication templates live inside the admin console for fast go-to-market execution.
 - **Collaborative Messaging**: Threaded conversations with internal notes ensure teams coordinate discreetly while keeping members informed.
 - **Secure Data Layer**: Row Level Security policies guard members, requests, messages, and bookings across member/admin roles.
+- **Luxury Typography**: Monument Extended webfonts provide premium visual hierarchy with comprehensive weight support and optimized loading performance.
 
 ### Member Experience
 - Refreshed member dashboard with KPI stat cards, recent activity timeline, and quick actions (flight concierge, concierge services, bookings).
@@ -32,10 +33,29 @@ A premium concierge services platform with dedicated member and operator experie
 
 ## Tech Stack
 - **Frontend**: Next.js 15 (App Router + Turbopack), React 19, TypeScript, Tailwind CSS 4, shadcn/ui, Radix UI primitives, Framer Motion.
+- **Typography**: Monument Extended webfonts with comprehensive weight support (Thin, Light, Regular, Bold, Black) and italic variants.
 - **Forms & Validation**: React Hook Form with Zod resolvers.
 - **Backend**: Supabase (PostgreSQL, Auth, Row Level Security, server-side helpers).
-- **UI Enhancements**: Lucide icons, custom glassmorphism components, Sonner for notifications.
+- **UI Enhancements**: Lucide icons, custom glassmorphism components, Sonner for notifications, luxury glass theme with Monument Extended typography.
 - **Formatting & Tooling**: ESLint 9, Prettier 3, Tailwind Merge.
+
+## Recent Changes
+
+### Typography & Design System
+- **Monument Extended Integration**: Added comprehensive Monument Extended webfont support with all weights (Thin, Light, Regular, Bold, Black) and italic variants.
+- **Font Loading Optimization**: Implemented `font-display: swap` for improved loading performance and user experience.
+- **Tailwind CSS v4 Compatibility**: Fixed `text-accent` utility class issues and updated configuration for Tailwind CSS v4.
+- **Luxury Glass Theme**: Enhanced typography hierarchy with Monument Extended as the primary sans-serif font family.
+
+### Technical Improvements
+- **Build System**: Resolved Tailwind CSS v4 configuration issues ensuring clean builds and proper utility class generation.
+- **Font Architecture**: Properly structured `@font-face` declarations with correct font-weight mappings and fallback fonts.
+- **CSS Variables**: Updated font family variables to prioritize Monument Extended while maintaining system font fallbacks.
+
+### Development Experience
+- **Zero Build Errors**: All TypeScript compilation, ESLint, and build processes now pass successfully.
+- **Font Performance**: Optimized font loading with proper WOFF2/WOFF format support and efficient font-display strategies.
+- **Design Consistency**: Unified typography system across member and admin portals with luxury-focused visual hierarchy.
 
 ## Getting Started
 
@@ -85,6 +105,23 @@ npm run dev
 ```
 Visit [http://localhost:3000](http://localhost:3000) to explore the member and admin portals.
 
+### 6. Typography Usage
+The app uses Monument Extended as the primary font family. You can leverage different weights in your components:
+
+```css
+/* Available font weights */
+font-weight: 100; /* Thin */
+font-weight: 200; /* Light */
+font-weight: 400; /* Regular */
+font-weight: 700; /* Bold */
+font-weight: 900; /* Black */
+
+/* With italic variants available for all weights */
+font-style: italic;
+```
+
+The fonts are automatically loaded and optimized with `font-display: swap` for better performance.
+
 ## Project Structure
 ```text
 app/
@@ -117,6 +154,12 @@ components/
 │   └── *.tsx
 ├── RequestThread.tsx
 └── ui/
+
+public/
+└── fonts/
+    └── monument-extended-webfonts/
+        ├── *.woff2 (Monument Extended font files)
+        └── *.woff (Monument Extended font files)
 
 supabase/
 └── migrations/20250205_member_management.sql

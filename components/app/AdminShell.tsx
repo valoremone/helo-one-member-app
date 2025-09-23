@@ -44,8 +44,8 @@ export function AdminShell({ user, children }: AdminShellProps) {
       {/* Main Area */}
       <div className="flex min-h-screen flex-1 flex-col">
         <TopBar user={user} onToggleSidebar={() => setSidebarOpen(true)} />
-        <main className="relative z-10 flex-1 px-4 pb-16 pt-8 sm:px-6 lg:px-12">
-          <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
+        <main className="relative z-10 flex-1 px-5 pb-16 pt-10 sm:px-8 lg:px-14">
+          <div className="mx-auto w-full max-w-7xl stack-roomy">
             {children}
           </div>
         </main>

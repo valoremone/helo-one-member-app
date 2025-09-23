@@ -5,7 +5,7 @@ import { StatusPill, type StatusVariant } from "@/components/app/StatusPill"
 import { cn } from "@/lib/utils"
 import type { ReactNode } from "react"
 
-export type MemberTier = "Platinum" | "Gold" | "Silver"
+export type MemberTier = "Founding50" | "Standard" | "House" | "Corporate"
 export type MemberStatus = "active" | "inactive" | "pending"
 
 export interface MemberRecord extends Record<string, unknown> {
@@ -20,9 +20,10 @@ export interface MemberRecord extends Record<string, unknown> {
 }
 
 const tierTone: Record<MemberTier, string> = {
-  Platinum: "text-purple-200",
-  Gold: "text-yellow-200",
-  Silver: "text-slate-200",
+  Founding50: "text-purple-200",
+  House: "text-yellow-200",
+  Standard: "text-slate-200",
+  Corporate: "text-blue-200",
 }
 
 const statusTone: Record<MemberStatus, StatusVariant> = {

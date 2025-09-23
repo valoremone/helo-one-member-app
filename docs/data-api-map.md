@@ -29,7 +29,7 @@ Generated from the checked-in migration `supabase/migrations/20250205_member_man
   - `user_id uuid fk -> auth.users(id) on delete set null`
   - `external_ref text`
   - `status text not null default 'active'` one of `active|inactive|pending|prospect`
-  - `tier text not null default 'Silver'` one of `Platinum|Gold|Silver` (app-level)
+  - `tier text not null default 'Standard'` one of `Founding50|Standard|House|Corporate` (app-level)
   - `first_name text`
   - `last_name text`
   - `email text not null`
@@ -61,7 +61,7 @@ Generated from the checked-in migration `supabase/migrations/20250205_member_man
   "user_id": "a8b2…",
   "external_ref": null,
   "status": "active",
-  "tier": "Platinum",
+  "tier": "Founding50",
   "first_name": "Ava",
   "last_name": "Stone",
   "email": "ava@example.com",
@@ -333,7 +333,7 @@ From MCP:
   "lastName": "string",
   "email": "string",
   "status": "active|inactive|pending|prospect",
-  "tier": "Platinum|Gold|Silver",
+  "tier": "Founding50|Standard|House|Corporate",
   "phone": "string?",
   "city": "string?",
   "country": "string?",
@@ -353,7 +353,7 @@ From MCP:
   "lastName?": "string",
   "email?": "string",
   "status?": "active|inactive|pending|prospect",
-  "tier?": "Platinum|Gold|Silver",
+  "tier?": "Founding50|Standard|House|Corporate",
   "phone?": "string|null",
   "city?": "string|null",
   "country?": "string|null",

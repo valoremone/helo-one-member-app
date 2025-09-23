@@ -10,7 +10,7 @@ const updateSchema = z
     lastName: z.string().min(1).optional(),
     email: z.string().email().optional(),
     status: z.enum(['active', 'inactive', 'pending', 'prospect']).optional(),
-    tier: z.enum(['Platinum', 'Gold', 'Silver']).optional(),
+    tier: z.enum(['Founding50', 'Standard', 'House', 'Corporate']).optional(),
     phone: z.string().optional(),
     city: z.string().optional(),
     country: z.string().optional(),

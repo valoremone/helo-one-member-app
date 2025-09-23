@@ -9,7 +9,7 @@ const memberSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   email: z.string().email(),
   status: z.enum(['active', 'inactive', 'pending', 'prospect']).default('active'),
-  tier: z.enum(['Platinum', 'Gold', 'Silver']).default('Silver'),
+  tier: z.enum(['Founding50', 'Standard', 'House', 'Corporate']).default('Standard'),
   phone: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),

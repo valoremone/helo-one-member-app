@@ -16,7 +16,7 @@ export function BentoGrid({ className, children }: BentoGridProps) {
   return (
     <div
       className={cn(
-        "grid auto-rows-auto gap-y-10 gap-x-6 items-stretch md:grid-cols-6",
+        "grid auto-rows-auto items-stretch gap-x-7 gap-y-8 md:grid-cols-6",
         className
       )}
     >
@@ -58,7 +58,7 @@ export function BentoGridItem({
   return (
     <GlassCard
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-2xl border-white/12 p-6",
+        "surface-card group relative flex flex-col overflow-hidden",
         className
       )}
       transition={{ duration: 0.5, ease: [0.32, 0.08, 0.24, 1] }}
@@ -72,30 +72,28 @@ export function BentoGridItem({
           accentMap[accent]
         )}
       />
-      <div className="relative flex min-h-full flex-col gap-5">
+      <div className="relative flex min-h-full flex-col gap-6">
         {(eyebrow || icon) && (
-          <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.32em] text-muted-foreground">
+          <div className="flex items-center justify-between gap-4 text-[0.65rem] uppercase tracking-[0.32em] text-muted-foreground">
             {eyebrow && <span>{eyebrow}</span>}
-            {icon && (
-              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/10">
-                {icon}
-              </span>
-            )}
+            {icon && <span className="surface-icon">{icon}</span>}
           </div>
         )}
         {(title || description) && (
-          <div className="space-y-3">
+          <div className="stack-tight">
             {title && (
-              <h3 className="text-2xl font-serif font-semibold leading-snug text-foreground">
+              <h3 className="text-2xl font-serif font-medium leading-snug text-foreground md:text-[1.65rem]">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <p className="text-sm text-muted-foreground md:text-base">
+                {description}
+              </p>
             )}
           </div>
         )}
-        <div className="flex-1 space-y-5 text-sm text-muted-foreground">
+        <div className="flex-1 stack-base text-sm text-muted-foreground">
           {children}
         </div>
         {action && (

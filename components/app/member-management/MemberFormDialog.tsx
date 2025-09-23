@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
 const statusOptions = ["active", "pending", "inactive", "prospect"] as const
-const tierOptions = ["Platinum", "Gold", "Silver"] as const
+const tierOptions = ["Founding50", "Standard", "House", "Corporate"] as const
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -73,7 +73,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
       lastName: "",
       email: "",
       status: "active",
-      tier: "Silver",
+      tier: "Standard",
       phone: "",
       city: "",
       country: "",
@@ -94,7 +94,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
             : "active"),
           tier: (tierOptions.includes(member.tier as typeof tierOptions[number])
             ? (member.tier as typeof tierOptions[number])
-            : "Silver"),
+            : "Standard"),
           phone: member.phone ?? "",
           city: member.city ?? "",
           country: member.country ?? "",
@@ -107,7 +107,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
           lastName: "",
           email: "",
           status: "active",
-          tier: "Silver",
+          tier: "Standard",
           phone: "",
           city: "",
           country: "",
@@ -150,7 +150,11 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton>
+      <DialogContent
+        showCloseButton
+        className="luxury-card-strong border-soft-strong p-8 sm:p-10 sm:max-w-2xl"
+        overlayClassName="bg-black/70 backdrop-blur-md"
+      >
         <DialogHeader>
           <DialogTitle>{mode === "create" ? "Create member" : "Edit member"}</DialogTitle>
           <DialogDescription>
@@ -161,7 +165,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
         </DialogHeader>
 
         <form className="space-y-5" onSubmit={handleSubmit(submit)}>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="firstName">First name</Label>
               <Input id="firstName" placeholder="Alex" {...register("firstName")}
@@ -189,7 +193,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
             )}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <select
@@ -220,7 +224,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
               <Input id="phone" placeholder="+1 (555) 123-4567" {...register("phone")}

@@ -16,17 +16,19 @@ export function PageHeader({ title, description, actions, className }: PageHeade
     <GlassCard
       variant="strong"
       className={cn(
-        "flex flex-col gap-4 rounded-2xl border-white/15 bg-white/8 py-5 sm:flex-row sm:items-center sm:justify-between sm:py-6",
+        "surface-card flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between",
         className
       )}
       hover={false}
     >
-      <div className="space-y-2">
-        <h1 className="text-3xl font-serif font-semibold tracking-tight text-foreground">
+      <div className="stack-tight">
+        <h1 className="text-3xl font-serif font-medium tracking-tight text-foreground md:text-[2.2rem]">
           {title}
         </h1>
         {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-sm text-muted-foreground md:text-base">
+            {description}
+          </p>
         )}
       </div>
       {actions && (
