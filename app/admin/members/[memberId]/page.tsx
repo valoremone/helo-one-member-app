@@ -7,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { notFound } from 'next/navigation'
 import { Phone, MapPin, Plane, ArrowLeft, CreditCard, Star, Users, FileText } from 'lucide-react'
 import Link from 'next/link'
+import { revalidatePath } from 'next/cache'
+import { EditMemberButton } from '@/components/app/EditMemberButton'
+import { pmcToMemberId, isPmcFormat, isUuidFormat } from '@/lib/pmc/lookup'
 
 interface Member360PageProps {
   params: Promise<{ memberId: string }>
@@ -15,17 +18,141 @@ interface Member360PageProps {
 export default async function Member360Page({ params }: Member360PageProps) {
   await requireAdmin()
   const supabase = await createClient()
-  const { memberId } = await params
+  const { memberId: inputId } = await params
+
+  // Determine if input is PMC or UUID and get the actual member ID
+  let actualMemberId: string
+  
+  if (isPmcFormat(inputId)) {
+    // Input is a PMC, convert to member ID
+    const memberId = await pmcToMemberId(inputId)
+    if (!memberId) {
+      notFound()
+    }
+    actualMemberId = memberId
+  } else if (isUuidFormat(inputId)) {
+    // Input is already a UUID
+    actualMemberId = inputId
+  } else {
+    // Invalid format
+    notFound()
+  }
 
   // Get member 360 data
   const { data: member360 } = await supabase
     .from('member_360')
     .select('*')
-    .eq('member_id', memberId)
+    .eq('member_id', actualMemberId)
     .single()
 
   if (!member360) {
     notFound()
+  }
+
+  // Fetch active PMC for display
+  const { data: pmc } = await supabase
+    .from('member_codes')
+    .select('display,tier,role')
+    .eq('member_id', actualMemberId)
+    .eq('status','active')
+    .maybeSingle()
+
+  // Get full member data for editing
+  const { data: member } = await supabase
+    .from('members')
+    .select('*')
+    .eq('id', actualMemberId)
+    .single()
+
+  async function reissueAction() {
+    'use server'
+    try {
+      const supabase = await createClient()
+      
+      // Get the member's actual tier from the members table
+      const { data: memberData } = await supabase
+        .from('members')
+        .select('tier')
+        .eq('id', actualMemberId)
+        .single()
+      
+      const t = memberData?.tier === 'Founding50' ? 'F50' : 
+                memberData?.tier === 'House' ? 'H1' : 'FF'
+      
+      console.log('PMC issuance - Member tier:', memberData?.tier, 'PMC tier:', t)
+      
+      // Import PMC functions
+      const { deriveNM2, deriveSIG, randomRAND, buildCore, formatDisplay } = await import('@/lib/pmc')
+      
+      // Get member data
+      const { data: me, error: meErr } = await supabase
+        .from('members')
+        .select('id,account_id,first_name,last_name,dob,phone')
+        .eq('id', actualMemberId)
+        .single()
+      
+      if (meErr || !me) {
+        console.error('Member not found:', meErr)
+        return
+      }
+
+      // Extract and format DOB (convert from YYYY-MM-DD to YYYYMMDD)
+      const dobRaw = me.dob as string | null
+      const dob = dobRaw ? dobRaw.replace(/-/g, '') : undefined
+      
+      // Extract phone last 6 digits
+      const phoneLast6 = (me.phone?.replace(/\D/g, '') ?? '').slice(-6) || undefined
+      
+      
+      if (!dob || !phoneLast6) {
+        console.error('Missing DOB or phone for PMC issuance')
+        return
+      }
+
+      // Always recalculate NM2 and SIG for reissuing
+      const fn = me.first_name ?? ''
+      const ln = me.last_name ?? ''
+      const nm2 = deriveNM2(fn, ln)
+      const sig = deriveSIG(dob, phoneLast6)
+      
+
+      const rand = randomRAND()
+      const { core, chk } = buildCore(t as 'F50' | 'H1' | 'FF', nm2, sig, rand)
+      const display = formatDisplay(core, 'X')
+
+      // Revoke any active code for this member
+      await supabase
+        .from('member_codes')
+        .update({ status: 'revoked', revoked_at: new Date().toISOString() })
+        .eq('member_id', actualMemberId)
+        .eq('status', 'active')
+
+      // Insert new code
+      const { error } = await supabase
+        .from('member_codes')
+        .insert({ 
+          member_id: actualMemberId, 
+          core, 
+          display, 
+          tier: t, 
+          nm2, 
+          sig, 
+          rand, 
+          chk, 
+          role: 'X', 
+          status: 'active' 
+        })
+
+      if (error) {
+        console.error('PMC insertion error:', error)
+        return
+      }
+
+      console.log('PMC issued successfully:', display)
+      revalidatePath(`/admin/members/${inputId}`)
+    } catch (err) {
+      console.error('PMC issuance error:', err)
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -56,12 +183,15 @@ export default async function Member360Page({ params }: Member360PageProps) {
             Back to Members
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-serif font-semibold">
             {member360.first_name} {member360.last_name}
           </h1>
-          <p className="text-muted-foreground">Member 360 View</p>
+          <p className="text-muted-foreground">
+            Member 360 View • {pmc?.display || 'No PMC issued'}
+          </p>
         </div>
+        <EditMemberButton member={{ ...member, tier: member.tier || 'Standard' }} />
       </div>
 
       {/* Hero Card */}
@@ -84,7 +214,19 @@ export default async function Member360Page({ params }: Member360PageProps) {
                 {member360.member_status}
               </Badge>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-sm text-muted-foreground">Public Member Code</span>
+              {pmc ? (
+                <code className="text-sm bg-soft px-2 py-1 rounded">{pmc.display}</code>
+              ) : (
+                <span className="text-sm">None issued</span>
+              )}
+              {/* Reissue button posts to API; for holders and auth users we reuse tier from existing code or default 'FF' */}
+              <form action={reissueAction}>
+                <Button type="submit" size="sm" variant="outline">{pmc ? 'Reissue Code' : 'Issue Code'}</Button>
+              </form>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">{member360.phone || 'No phone'}</span>
@@ -98,6 +240,10 @@ export default async function Member360Page({ params }: Member360PageProps) {
               <div className="flex items-center space-x-2">
                 <Plane className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">{member360.preferred_airport || 'No preferred airport'}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">DOB:</span>
+                <span className="text-sm">{member360.dob || 'Not provided'}</span>
               </div>
             </div>
           </div>
@@ -131,7 +277,7 @@ export default async function Member360Page({ params }: Member360PageProps) {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Member Since</p>
-                  <p className="text-sm">{formatDate(member360.created_at)}</p>
+                  <p className="text-sm">{member360.created_at ? formatDate(member360.created_at) : 'Unknown'}</p>
                 </div>
               </div>
             </GlassCard>

@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const statusOptions = ["active", "pending", "inactive", "prospect"] as const
 const tierOptions = ["Founding50", "Standard", "House", "Corporate"] as const
@@ -29,6 +30,7 @@ const formSchema = z.object({
   email: z.string().email("Please provide a valid email"),
   status: z.enum(statusOptions),
   tier: z.enum(tierOptions),
+  dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/,{ message: "Use YYYY-MM-DD" }).optional(),
   phone: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),
@@ -65,6 +67,8 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -74,6 +78,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
       email: "",
       status: "active",
       tier: "Standard",
+      dob: "",
       phone: "",
       city: "",
       country: "",
@@ -95,6 +100,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
           tier: (tierOptions.includes(member.tier as typeof tierOptions[number])
             ? (member.tier as typeof tierOptions[number])
             : "Standard"),
+          dob: (member as { dob?: string }).dob ?? "",
           phone: member.phone ?? "",
           city: member.city ?? "",
           country: member.country ?? "",
@@ -108,6 +114,7 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
           email: "",
           status: "active",
           tier: "Standard",
+          dob: "",
           phone: "",
           city: "",
           country: "",
@@ -165,88 +172,74 @@ export function MemberFormDialog({ open, onOpenChange, mode, member }: MemberFor
         </DialogHeader>
 
         <form className="space-y-5" onSubmit={handleSubmit(submit)}>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
               <Label htmlFor="firstName">First name</Label>
-              <Input id="firstName" placeholder="Alex" {...register("firstName")}
-                     aria-invalid={errors.firstName ? 'true' : 'false'} />
-              {errors.firstName && (
-                <p className="text-xs text-destructive">{errors.firstName.message}</p>
-              )}
+              <Input id="firstName" placeholder="Ava" {...register("firstName")} />
+              {errors.firstName && <p className="text-sm text-red-600 mt-1">{errors.firstName.message}</p>}
             </div>
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="lastName">Last name</Label>
-              <Input id="lastName" placeholder="Morgan" {...register("lastName")}
-                     aria-invalid={errors.lastName ? 'true' : 'false'} />
-              {errors.lastName && (
-                <p className="text-xs text-destructive">{errors.lastName.message}</p>
-              )}
+              <Input id="lastName" placeholder="Stone" {...register("lastName")} />
+              {errors.lastName && <p className="text-sm text-red-600 mt-1">{errors.lastName.message}</p>}
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="member@example.com" {...register("email")}
-                   aria-invalid={errors.email ? 'true' : 'false'} />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" placeholder="ava@example.com" {...register("email")} />
+              {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
+            </div>
+            <div>
+              <Label htmlFor="dob">Date of Birth</Label>
+              <Input id="dob" type="date" placeholder="YYYY-MM-DD" {...register("dob")} />
+              {errors.dob && <p className="text-sm text-red-600 mt-1">{errors.dob.message}</p>}
+            </div>
+            <div>
               <Label htmlFor="status">Status</Label>
-              <select
-                id="status"
-                className="h-10 w-full rounded-md border border-white/15 bg-white/5 px-3 text-sm text-foreground focus:border-white/30 focus:outline-none focus:ring-0"
-                {...register("status")}
-              >
-                {statusOptions.map((option) => (
-                  <option key={option} value={option} className="bg-black">
-                    {option.charAt(0).toUpperCase() + option.slice(1)}
-                  </option>
-                ))}
-              </select>
+              <Select value={watch("status")} onValueChange={(value: string) => setValue("status", value as typeof statusOptions[number])}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option.charAt(0).toUpperCase() + option.slice(1)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.status && <p className="text-sm text-red-600 mt-1">{errors.status.message}</p>}
             </div>
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="tier">Tier</Label>
-              <select
-                id="tier"
-                className="h-10 w-full rounded-md border border-white/15 bg-white/5 px-3 text-sm text-foreground focus:border-white/30 focus:outline-none focus:ring-0"
-                {...register("tier")}
-              >
-                {tierOptions.map((option) => (
-                  <option key={option} value={option} className="bg-black">
-                    {option}
-                  </option>
-                ))}
-              </select>
+              <Select value={watch("tier")} onValueChange={(value: string) => setValue("tier", value as typeof tierOptions[number])}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select tier" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tierOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.tier && <p className="text-sm text-red-600 mt-1">{errors.tier.message}</p>}
             </div>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" placeholder="+1 (555) 123-4567" {...register("phone")}
-                     aria-invalid={errors.phone ? 'true' : 'false'} />
-              {errors.phone && (
-                <p className="text-xs text-destructive">{errors.phone.message}</p>
-              )}
+              <Input id="phone" placeholder="+1 555 0100" {...register("phone")} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="preferredAirport">Preferred airport</Label>
-              <Input id="preferredAirport" placeholder="KTEB" {...register("preferredAirport")} />
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="city">City</Label>
               <Input id="city" placeholder="New York" {...register("city")} />
             </div>
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="country">Country</Label>
-              <Input id="country" placeholder="United States" {...register("country")} />
+              <Input id="country" placeholder="US" {...register("country")} />
+            </div>
+            <div>
+              <Label htmlFor="preferredAirport">Preferred Airport</Label>
+              <Input id="preferredAirport" placeholder="JFK" {...register("preferredAirport")} />
             </div>
           </div>
 

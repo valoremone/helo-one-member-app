@@ -29,6 +29,7 @@ export interface Member {
   first_name: string | null
   last_name: string | null
   email: string
+  dob?: string | null
   phone: string | null
   preferred_airport: string | null
   city: string | null
@@ -103,6 +104,7 @@ export interface Member360 {
   country: string | null
   member_status: MemberStatus
   email: string | null
+  dob: string | null
   profile_name: string | null
   role: UserRole | null
   recent_requests: Array<{

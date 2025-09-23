@@ -28,6 +28,7 @@ interface MemberListRow {
   notes: string | null
   created_at: string
   request_count: number
+  member_codes?: Array<{ display: string; status: string }>
 }
 
 interface MemberManagementTableProps {
@@ -49,9 +50,24 @@ export function MemberManagementTable({ members }: MemberManagementTableProps) {
     return members.map((member) => {
       const name = [member.first_name, member.last_name].filter(Boolean).join(" ") || member.email
       const status = statusMap[member.status] ?? "pending"
+      
+      // Get active PMC for the member
+      const activePmc = member.member_codes?.find(mc => mc.status === 'active')
+      
+      // Convert display PMC to URL-safe format
+      let urlSafePmc = member.id // fallback to UUID
+      if (activePmc?.display) {
+        // Extract core and role from display format: TIER+NM2+SIG+RAND–CHK-ROLE or TIER+NM2+SIG+RAND-CHK-ROLE
+        const match = activePmc.display.match(/^([A-Z0-9]{2,3})([A-Z0-9]{2})([A-Z0-9]{4})([A-Z0-9]{4})[–-]([A-Z0-9])-([A-Z])$/)
+        if (match) {
+          const [, tier, nm2, sig, rand, chk, role] = match
+          const core = `${tier}${nm2}${sig}${rand}${chk}`
+          urlSafePmc = `${core}${role}`
+        }
+      }
 
       return {
-        id: member.id,
+        id: urlSafePmc, // Use URL-safe PMC if available, fallback to UUID
         name,
         email: member.email,
         status,

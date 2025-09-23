@@ -11,6 +11,7 @@ const updateSchema = z
     email: z.string().email().optional(),
     status: z.enum(['active', 'inactive', 'pending', 'prospect']).optional(),
     tier: z.enum(['Founding50', 'Standard', 'House', 'Corporate']).optional(),
+    dob: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     phone: z.string().optional(),
     city: z.string().optional(),
     country: z.string().optional(),
@@ -37,6 +38,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (payload.email !== undefined) updates.email = payload.email
     if (payload.status !== undefined) updates.status = payload.status
     if (payload.tier !== undefined) updates.tier = payload.tier
+    if (payload.dob !== undefined) updates.dob = payload.dob || null
     if (payload.phone !== undefined) updates.phone = payload.phone || null
     if (payload.city !== undefined) updates.city = payload.city || null
     if (payload.country !== undefined) updates.country = payload.country || null

@@ -9,7 +9,10 @@ export default async function AdminMembersPage() {
 
   const { data: members, error } = await supabase
     .from('member_list')
-    .select('*')
+    .select(`
+      *,
+      member_codes(display, status)
+    `)
     .order('created_at', { ascending: false })
 
   if (error) {
